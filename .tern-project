@@ -1,0 +1,23 @@
+{
+  "ecmaVersion": "5",
+  "libs": [
+    "jquery",
+    "react",
+    "browser"
+  ],
+  "loadEagerly": [],
+  "dontLoad": [],
+  "plugins": {
+    "commonjs": {},
+    "requirejs": {
+      "baseURL": "",
+      "paths": "",
+      "override": ""
+    },
+    "node": {
+      "dontLoad": "",
+      "load": "",
+      "modules": ""
+    }
+  }
+}
