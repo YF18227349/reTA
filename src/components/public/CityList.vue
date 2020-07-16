@@ -160,7 +160,6 @@ export default {
       this.$dialog.loading.open("获取地址信息中...");
       this.__initAction("Tools-getAreaData", param, (res, s) => {
         if (s == 1) {
-          console.log(res)
           var data = res.data;
           var info = this.getSelectData();
           if (!info) {
@@ -169,8 +168,11 @@ export default {
           var select_city = {};
           select_city.city_name = data.name;
           select_city.city_id = data.id;
-          select_city.lng = data.lng;
-          select_city.lat = data.lat;
+          console.log(data)
+          // select_city.lng = data.lng;
+          select_city.lng = data.longitude;
+          // select_city.lat = data.lat;
+          select_city.lat = data.latitude;
           info.select_city = {};
           info.select_city = select_city;
           this.setCache("select_data", JSON.stringify(info));
@@ -184,8 +186,10 @@ export default {
           location.location_city = res.data.name;
           location.city = res.data.name;
           location.province = name;
-          location.lat = res.data.lat;
-          location.lon = res.data.lng;
+          // location.lat = res.data.lat;
+          // location.lon = res.data.lng;
+           location.lat = data.latitude;
+          location.lon = data.longitude;
           this.setCache("location", JSON.stringify(location));
           var user_info = this.getUserInfo();
           if (!user_info) {
@@ -196,8 +200,8 @@ export default {
             user_info.location = {};
             user_info.location.cityId = res.data.id;
             user_info.location.address = res.data.parent.name + name;
-            user_info.location.lng = res.data.lng;
-            user_info.location.lat = res.data.lat;
+            user_info.location.lng = res.data.longitude;
+            user_info.location.lat = res.data.latitude;
             user_info.location.city = res.data.name;
             user_info.location.province = name;
             user_info.location.street = "";

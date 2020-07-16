@@ -37,7 +37,7 @@
 							</div>
 							<span>信用分</span>
 						</div>
-						<div class="w-33 text-center" v-if="approveType == 1">
+						<div class="w-33 text-center" v-if="approveType == 1" >
 							<div class="icon-box text-center">
 								<img :src="rid == 1 ? imageIconList[1].url : rid == 2 ? imageIconList[5].url : imageIconList[3].url" alt />
 							</div>

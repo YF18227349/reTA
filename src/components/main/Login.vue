@@ -130,7 +130,6 @@ export default {
 			this.__initAction("Tools-getConfigApp", {}, (res, s) => {
 				if (s == 1) {
 					var data = res.data;
-					console.log(data)
 					for (let i of data.defBase) {
 						// console.log(i.title);
 						this.setCache(i.title, JSON.stringify(i));
@@ -165,7 +164,6 @@ export default {
 				loginName,
 				loginPass
 			};
-			console.log(param)
 			this.__initAction("Member-login", param, (res, s) => {
 				console.log(res)
 				if (s == 1) {

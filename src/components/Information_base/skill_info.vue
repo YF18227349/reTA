@@ -269,7 +269,6 @@ export default {
 						var user = res.data.data.dataList.leftMemberData;
 						// var mySelf = res.data.data.myInfo;
 						var arr = this.skillInfoList;
-						console.log(data)
 						this.dataId = data.id;
 						arr.u_skill = data.title;
 						arr.u_imgsURL = data.images;
@@ -283,7 +282,6 @@ export default {
 						arr.u_type = this.type;
 						arr.id = data.userId;
 						this.userId = data.userId;
-						console.log(user)
 						arr.u_name = user.lastName;
 						arr.u_logo = user.portrait;
 						arr.u_score = user.loginTimes;

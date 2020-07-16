@@ -214,10 +214,10 @@ export default {
 		window.addEventListener("scroll", this.handleScroll);
 	},
 
-	destroyed() {
-		//移除滚动监听事件
-		window.removeEventListener("scroll", this.handleScroll);
-	},
+	// destroyed() {
+	// 	//移除滚动监听事件
+	// 	window.removeEventListener("scroll", this.handleScroll);
+	// },
 
 	// beforeRouteLeave(to, from, next) {
 	// 	if (to.path == "/newusercenter") {
@@ -265,7 +265,6 @@ export default {
 			this.__initAction("Banner-getData", param, (res, s) => {
 				if(s == 1) {
 				  this.mainCarsouelImgs = res.data;
-				  console.log(res.data)
 				  this.showHome = true;
 				}else {
 				  this.showHome = false;
@@ -375,7 +374,7 @@ export default {
 						arr.logo = it.portrait;
 						arr.imgs = it.prices;
 						arr.hot = it.view;
-						arr.lng = it.lon;
+						arr.lon = it.lon;
 						arr.lat = it.lat;
 						arr.distance = it.distance;
 						arr.time = it.create_time;
@@ -426,7 +425,7 @@ export default {
 						arr.logo = it.portrait;
 						arr.imgs = it.prices;
 						arr.hot = it.view;
-						arr.lng = it.lon;
+						arr.lon = it.lon;
 						arr.lat = it.lat;
 						arr.distance = it.distance;
 						arr.time = it.create_time;
@@ -451,19 +450,20 @@ export default {
 		handleScroll() { //顶部导航栏滚动事件
 			var offTop = window.pageYOffset;
 			var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-			let elementTop = document.querySelector(".main-slider").offsetHeight;
-			var x = elementTop / 2;
-			if (offTop > 5 && offTop <= x) {
-				this.goScroll = "background-color:rgba(47, 155, 254, 0.1)";
-			} else if (offTop > x && offTop <= elementTop) {
-				this.goScroll = "background-color:rgba(47, 155, 254, 0.5)";
-			} else if (offTop == 0) {
-				this.goScroll = "display:flex";
-			} else {
-				this.goScroll = "display:none";
+		  if(document.querySelector(".main-slider")) {
+				let elementTop = document.querySelector(".main-slider").offsetHeight;
+				var x = elementTop / 2;
+				if (offTop > 5 && offTop <= x) {
+					this.goScroll = "background-color:rgba(47, 155, 254, 0.1)";
+				} else if (offTop > x && offTop <= elementTop) {
+					this.goScroll = "background-color:rgba(47, 155, 254, 0.5)";
+				} else if (offTop == 0) {
+					this.goScroll = "display:flex";
+				} else {
+					this.goScroll = "display:none";
+				}
 			}
 		},
-
 		cancel() {
 			this.pageInfo.toast_code = false;
 		},
@@ -474,7 +474,6 @@ export default {
 				return;
 			}
 			var list = this.connection_list;
-			// console.log(list[i].code);
 			if (list[i].code) {
 				this.goURL({
 					url: list[i].url,

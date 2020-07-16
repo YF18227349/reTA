@@ -42,8 +42,8 @@ export default {
       };
       this.__initAction("LnsuranceInfo-getInfo", param, (res, s) => {
         if (s == 1) {
-          console.log(res.data);
-          var data = res.data;
+          console.log(res.data[0]);
+          var data = res.data[0];
           this.title = data.title;
           this.createTime = data.create_time;
           this.content = data.remarks;

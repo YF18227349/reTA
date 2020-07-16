@@ -35,7 +35,7 @@
 					</div>
 					<div>
 						<span class="iconfont icon-dingwei fs-3 fc-gray fw-5 mr-1"></span>
-						<span class="fs-3 fc-gray fw-5">{{data.distance>0?data.distance +'m':"距你很近..."}}</span>
+						<span class="fs-3 fc-gray fw-5">{{data.distance>0?data.distance +'km':"距你很近..."}}</span>
 					</div>
 					<div>
 						<span class="fs-3 fc-gray fw-5">{{data.time?data.time:data.create_time}}</span>

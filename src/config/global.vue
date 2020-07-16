@@ -2,11 +2,11 @@
 <script>
 // const baseLink = "http://zywl.tarl.cc/";
 // // app.tiananrenli.com
-// const baseLink = "https://base.sxtian.com/";
-const baseLink = "http://zywl.tarl.cc/";
-const baseURL = baseLink + "kkkk.php";
+const baseLink = "https://base.sxtian.com/";
+// const baseLink = "http://zywl.tarl.cc/";
+// const baseURL = baseLink + "kkkk.php";
 // const baseURL = baseLink + "aaaa.php";
-// const baseURL = baseLink + "api.php"; //http://localhost:8089
+const baseURL = baseLink + "api.php"; //http://localhost:8089
 const reg_phone = /^1\d{10}$/;
 const reg_bankCardId = /^\d{15}|\d{19}$/;
 // const reg_ID = /^\d{6}(19|20)\d{2}(0[1-9]|1[1-2])[0-2]\d{4}\w$/;

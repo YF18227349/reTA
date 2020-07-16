@@ -3,12 +3,12 @@
 		<header class="info_header bg-white w-100 mb-1" :style="infoHeader" ref="getHeaderHeight">
 			<router-link to="/city_list" class="info_header_city">
 				<div>
-					<span class="fs-3 fc-gray title_city fw-5">{{location_city}} &#12288;</span>
+					<span class="fs-3 fc-gray title_city fw-5">{{location_city}} </span>
 					<span class="city_arrow fc-gray iconfont icon-arrowdown"></span>
 				</div>
 			</router-link>
 
-			<div class="info_header_city"></div>
+			<!-- <div class="info_header_city"></div> -->
 
 			<div class="nav_tab_items">
 				<!--   headerTabbarLsit-->
@@ -460,14 +460,25 @@ export default {
 		//定义定位信息
 		var userInfo = this.getCache("user_info", 2);
 		if(userInfo) {
-			let location = this.getCache("location",2);
-			this.lon = location.lon;
-			this.lat = location.lat;
-			this.cityId = location.cityId;
-			this.location_city = location.city;
-			this.token = userInfo.token;
+			let location = userInfo.location;
+			if(location) {
+				this.lon = location.lng;
+				this.lat = location.lat;
+				this.cityId = location.cityId;
+				this.location_city = location.city;
+				this.token = userInfo.token;
+				this.init();
+			}else {
+				let locations = this.getCache("location",2);
+				this.lon = locations.lon;
+				this.lat = locations.lat;
+				this.cityId = locations.cityId;
+				this.location_city = locations.city;
 
-			this.init();
+				this.getPageInfo();
+				this.getUserInfos();
+				this.removeCache();
+			}
 		}else {
 			let location = this.getCache("location",2);
 			this.lon = location.lon;
@@ -486,6 +497,8 @@ export default {
 		this.toastHeight.height = `${h * 0.07}px`;
 		this.toastHeight.top = `${h * 0.07 + 120}px`;
 		this.informationImage.top = `${h * 0.07}px`;
+
+		
 
 	},
 	updated() {
@@ -530,13 +543,14 @@ export default {
 				};
 
 				//加载定位信息
-				if (info.select_city) {
-					var data = info.select_city;
-					this.lon = data.lng;
-					this.lat = data.lat;
-					this.cityId = data.city_id;
-					this.location_city = data.city_name;
-				}
+				// if (info.select_city) {
+				// 	var data = info.select_city;
+				// 	console.log(data)
+				// 	this.lon = data.lng;
+				// 	this.lat = data.lat;
+				// 	this.cityId = data.city_id;
+				// 	this.location_city = data.city_name;
+				// }
 
 				//专业分类
 				if (info.data) {
@@ -695,8 +709,6 @@ export default {
 				this.isImage = false;
 				this.info_skill_list = [];
 				dataList = this.info_skill_list;
-				console.log(dataList)
-
 			} else if (x == 2) {
 				this.isImage = false;
 				setTimeout(() => {
@@ -707,8 +719,6 @@ export default {
 				}, 300);
 				this.interviewerList = [];
 				dataList = this.interviewerList;
-				console.log(dataList)
-
 			} else if (x == 3) {
 				this.isImage = false;
 				setTimeout(() => {
@@ -719,8 +729,6 @@ export default {
 				}, 300);
 				this.resumeInfoList = [];
 				dataList = this.resumeInfoList;
-				console.log(dataList)
-
 			}
 			this.getDataInfoList(url, params, types, dataList);
 			this.getBannerImage(x);
@@ -1198,7 +1206,8 @@ export default {
 		.title_city {
 			overflow:hidden;
 			text-overflow:ellipsis;
-			white-space:nowrap
+			white-space:nowrap;
+			margin-right:5px;
 		}
 		.city_arrow {
 			display: flex;

@@ -267,7 +267,6 @@ export default {
     },
 
     goHref(id) {
-      console.log(id);
       switch (id) {
         case 1:
           this.__Href("/lesson_group");
@@ -416,7 +415,6 @@ export default {
     // },
 
     close2() {
-      console.log("点击了关闭");
       this.showKeyboard = false;
       this.openDom2.status = false;
       this.sum = [];

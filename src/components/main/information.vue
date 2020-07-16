@@ -196,10 +196,11 @@ export default {
 						switch (this.getData.type) {
 							case "1":
 								for (let it of res.data) {
+									console.log(it)
 									var arr = {};
 									arr.title = it.title;
-									arr.name = it.lastName;
-									arr.logo = it.portrait;
+									arr.name = it.c_user.lastName;
+									arr.logo = it.c_user.portrait;
 									arr.imgs = it.prices;
 									arr.hot = it.view;
 									arr.lng = it.lon;
