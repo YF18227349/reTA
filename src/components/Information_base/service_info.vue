@@ -246,9 +246,19 @@ export default {
 				}, 1600);
 				return;
 			}
+			var select_data = this.getCache("select_data", 2);
+			var location = this.getCache("location", 2);
+			if(select_data) {
+				if(select_data.select_city) {
+			       this.lng = select_data.select_city.lng;
+				}else {
+                  this.lng = location.lon;
+				}
+			}else {
+				this.lng = location.lon;
+			}
 			var url = this.url;
 			this.id = params.id;
-			this.lng = params.lng;
 			this.lat = params.lat;
 			this.code = params.code;
 			var info = {
@@ -258,6 +268,7 @@ export default {
 				lat: this.lat,
 				type: this.code
 			};
+			console.log(info)
 			this.getDataInfo(info, url);
 		},
 

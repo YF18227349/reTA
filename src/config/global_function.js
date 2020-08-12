@@ -19,6 +19,25 @@ exports.install = function (Vue, options) {
 			return true;
 		}
 	};
+	//验证手机号码 (x:手机号码,reg正则匹配)
+	Vue.prototype.checkPhone2 = function (x, reg) { //全局函数1
+		var re = reg
+		if (!x) {
+			this.$dialog.toast({
+				mes: "账号不能为空",
+				timeout: 800
+			});
+			return;
+		} else if (!re.test(x)) {
+			this.$dialog.toast({
+				mes: "账号格式错误",
+				timeout: 800
+			});
+			return;
+		} else {
+			return true;
+		}
+	};
 
 	//验证密码 (pwd: 验证的密码)
 	Vue.prototype.checkPwd = function (pwd) { //全局函数2
@@ -53,16 +72,35 @@ exports.install = function (Vue, options) {
 	};
 
 	// 验证邮箱（email:验证邮箱）
-	Vue.prototype.checkEmail = function(email){
+	Vue.prototype.checkEmail = function(email, reg){
+		var re = reg
 		if(!email){
 			this.$dialog.toast({
 				mes:"邮箱不能为空",
 				timeout:800
 			});
 			return;
-		}else if(email.length<6 || email.length>25){
+		}else if(email.length<6 || email.length>25 || !re.test(email)){
 				this.$dialog.toast({
 					mes:"邮箱格式错误",
+					timeout:800
+				});
+				return;
+		}else{
+			return true;
+		}
+	};
+	Vue.prototype.checkEmail2 = function(email, reg){
+		var re = reg
+		if(!email){
+			this.$dialog.toast({
+				mes:"账号不能为空",
+				timeout:800
+			});
+			return;
+		}else if(!re.test(email)){
+				this.$dialog.toast({
+					mes:"账号格式错误",
 					timeout:800
 				});
 				return;

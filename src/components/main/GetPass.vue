@@ -4,9 +4,9 @@
 			<h1>找回密码</h1>
 		</div>
 		<div class="login-phone">
-			<h3>{{pageInfos.title}}</h3>
+			<h3>{{pageInfo.title}}</h3>
 			<div class="input-box-getpass">
-				<input placeholder="请输入注册手机号" v-model="model.input" :type="pageInfos.inputType" />
+				<input placeholder="请输入注册手机号/邮箱账号" v-model="model.input" :type="pageInfo.inputType" />
 			</div>
 		</div>
 		<div class="email-pwd">
@@ -25,18 +25,12 @@
 export default {
 	data() {
 		return {
-			pageInfo: [
-				{
-					title: "手机号",
-					inputType: "number",
-					pwd: "邮箱找回密码"
-				},
-				{
-					title: "邮箱",
-					inputType: "text",
-					pwd: "手机找回密码"
-				}
-			],
+			pageInfo:{
+				title: "手机号/邮箱",
+				inputType: "text",
+				pwd: "找回密码"
+			}
+			,
 			isPageCode: true,
 			model: {
 				input: ""
@@ -57,19 +51,28 @@ export default {
 		doNext() {
 			var val = this.inputVal;
 			var type = "";
-			if (this.isPageCode) {
-				//手机找回
-				console.log("手机");
-				var reg = /^1[3456789]\d{9}$/;
-				if (!reg.test(val)) return this._msg("手机格式不正确");
-				type = "手机";
-			} else {
-				//邮箱找回
-				console.log("邮箱");
-				var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
-				if (!reg.test(val)) return this._msg("邮箱格式不正确");
+			var regP = /^1[3456789]\d{9}$/;
+			var regE = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+			if(regE.test(val)){
+				console.log('邮箱')
 				type = "邮箱";
+			}else if(regP.test(val)){
+				console.log("手机")
+				type = "手机";
 			}
+			// if (this.isPageCode) {
+			// 	//手机找回
+			// 	var regP = /^1[3456789]\d{9}$/;
+			// 	if (!regP.test(val)) return this._msg("账号格式不正确");
+			// 	type = "手机";
+			// } 
+			// else {
+			// 	//邮箱找回
+			// 	console.log("邮箱");
+			// 	var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+			// 	if (!reg.test(val)) return this._msg("邮箱格式不正确");
+			// 	type = "邮箱";
+			// }
 			var obj = {
 				tel: val,
 				type: type
@@ -87,10 +90,11 @@ export default {
 	},
 
 	computed: {
-		pageInfos() {
-			var i = this.isPageCode ? 0 : 1;
-			return this.pageInfo[i];
-		},
+		// pageInfos() {
+		// 	var i = this.isPageCode ? 0 : 1;
+		// 	console.log(i)
+		// 	return this.pageInfo[i];
+		// },
 
 		inputVal() {
 			return this.model.input;

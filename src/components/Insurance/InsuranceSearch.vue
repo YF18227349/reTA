@@ -88,6 +88,7 @@ export default {
         token
       }, (res, s) => {
         if (s == 1) {
+          console.log(res)
           this.bodyStyle.backgroundImage = `url(${res.data.getList.bkdImage.value})`;
         }
       })
@@ -165,6 +166,7 @@ export default {
                     outline: none;
                     border: none;
                     width: 60%;
+                    text-align: left;
                     // line-height: 50px;
                 }
                 .city-input {

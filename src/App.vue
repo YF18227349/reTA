@@ -281,341 +281,343 @@ export default {
     initIm() {
       //初始化Im
       var _this = this;
-      var info = JSON.parse(this.getCache("user_info"));
+      var info = this.getCache("user_info",2);
       if (info) {
-        this.userName = info.telPhone;
+        this.userName = info.Husername;
         this.acsToken = info.token;
+
         // this.$imOption.user = userName; //将登录名存入imoptions
         // this.$imOption.accessToken = acsToken; //将密码存入imoptions
+        this.$imOption.user = this.userName;
+        this.$imOption.pwd = this.userName;
+        this.$imConn.open(this.$imOption); //登录
+        // this._log("登录Im...")
+
+        this.$imConn.listen({
+          //添加相应的callback
+          onOpened: function(message) {
+            //连接成功回调
+            // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
+            // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
+            // 则无需调用conn.setPresence();
+            _this._log("登录成功");
+            // _this.isWebImCode = false; //停止登录
+            // console.log(message, "连接成功...");
+          },
+          onClosed: function(message) {
+            _this._log("登录异常");
+            _this.isWebImCode = true; //再次尝试登录
+
+            setTimeout(() => {
+              _this.isWebImCode = false;
+            }, 500);
+            // console.log(message, "连接关闭回调");
+          }, //连接关闭回调
+
+          onTextMessage: function(message) {
+            var msg = message.data;
+            var from = message.from;
+            var to = message.to;
+            //获得当前时间 年-月-日-时-分
+            var dates = _this._getDate();
+            var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
+              _this._getDate().date
+            } ${_this._getDate().hours}:${_this._getDate().minutes}`;
+            //获得用户详情
+            var url = "Member-userInfo";
+            var token = _this.getUserInfo().token;
+            var params = {
+              token,
+              phone: from
+            };
+            var obj = {}; //存储对象
+            _this.__initAction(url, params, (res, s) => {
+              if (s == 1) {
+                var data = res.data;
+                obj.userName = data.memberData.lastName;
+                obj.portrait = data.memberData.portrait;
+                obj.strDate = strDate;
+                obj.txt = [];
+                var obk = {
+                  text: msg
+                };
+                obj.txt.push(obk);
+                obj.fromNum = from;
+                obj.toNum = to;
+                setTimeout(() => {
+                  _this.localData = _this.$store.state.msgDataList;
+                  _this.localData.push(obj);
+                  _this.$store.commit("msgDataListChange", _this.localData);
+                }, 200);
+              }
+            });
+            // msg = msg.split(/:{2}RIG:{2}/);
+            // obj.userName = msg[0];
+            // obj.portrait = msg[1];
+            // obj.strDate = msg[2];
+            // obj.txt = [];
+            // var obk = {
+            //   text: msg[3]
+            // };
+            // obj.txt.push(obk);
+            // obj.userNum = from;
+            // obj.toUser = to;
+            // setTimeout(() => {
+            //   _this.localData = _this.$store.state.msgDataList;
+            //   _this.localData.push(obj);
+            //   _this.$store.commit("msgDataListChange", _this.localData);
+            // }, 300);
+            console.log(message, "收到文本消息");
+          }, //收到文本消息
+
+          onEmojiMessage: function(message) {
+            var info = message.data;
+            var from = message.from;
+            var to = message.to;
+            //获得当前时间 年-月-日-时-分
+            var dates = _this._getDate();
+            var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
+              _this._getDate().date
+            } ${_this._getDate().hours}:${_this._getDate().minutes}`;
+            //获得用户详情
+            var url = "Member-userInfo";
+            var token = _this.getUserInfo().token;
+            var params = {
+              token,
+              phone: from
+            };
+            var obj = {};
+            _this.__initAction(url, params, (res, s) => {
+              if (s == 1) {
+                var data = res.data;
+                console.log(data);
+                obj.userName = data.memberData.lastName;
+                obj.portrait = data.memberData.portrait;
+                obj.strDate = strDate;
+                obj.txt = [];
+                for (var key in info) {
+                  if (info[key]) {
+                    if (info[key].type == "txt") {
+                      var objt = {
+                        text: info[key].data
+                      };
+                      obj.txt[key] = objt;
+                    } else if (info[key].type == "emoji") {
+                      var obju = {
+                        url: info[key].data
+                      };
+                      obj.txt[key] = obju;
+                    }
+                  }
+                }
+                obj.fromNum = from;
+                obj.toNum = to;
+                setTimeout(() => {
+                  _this.localData = _this.$store.state.msgDataList;
+                  _this.localData.push(obj);
+                  _this.$store.commit("msgDataListChange", _this.localData);
+                }, 200);
+              }
+            });
+            console.log(message, "收到表情消息");
+          }, //收到表情消息
+
+          onPictureMessage: function(message) {
+            console.log(message, "收到图片消息");
+          }, //收到图片消息
+
+          onCmdMessage: function(message) {
+            console.log(message, "收到命令消息");
+          }, //收到命令消息
+
+          onAudioMessage: function(message) {
+            console.log(message, "收到音频消息");
+            var options = {
+              url: message.filename
+            };
+            var objectURL;
+            options.onFileDownloadComplete = response => {
+              //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
+              objectURL = _this.$webim.utils.parseDownloadResponse.call(
+                _this.$imConn,
+                response
+              );
+            };
+
+            options.onFileDownloadError = () => {
+              //音频下载失败
+              console.log("音频下载失败");
+            };
+
+            //通知服务器将音频转为mp3
+            options.headers = {
+              Accept: "audio/mp3"
+            };
+            _this.$webim.utils.download.call(_this.$imConn, options);
+
+            var from = message.from; //from user
+            var to = message.to; //go to user
+
+            //获得当前时间 年-月-日-时-分
+            var dates = _this._getDate();
+            var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
+              _this._getDate().date
+            } ${_this._getDate().hours}:${_this._getDate().minutes}`;
+            var url = "Member-userInfo";
+            var token = _this.getUserInfo().token;
+            var params = {
+              token,
+              phone: from
+            };
+            var obj = {};
+            _this.__initAction(url, params, (res, s) => {
+              if (s == 1) {
+                var data = res.data;
+                obj.userName = data.lastName;
+                obj.portrait = data.portrait;
+                obj.strDate = strDate;
+                obj.record = options.url;
+                obj.fromNum = from;
+                obj.toNum = to;
+                setTimeout(() => {
+                  _this.localData = _this.$store.state.msgDataList;
+                  console.log(obj);
+                  _this.localData.push(obj);
+                  console.log(obj);
+                  _this.$store.commit("msgDataListChange", _this.localData);
+                }, 300);
+              }
+            });
+          }, //收到音频消息
+
+          onLocationMessage: function(message) {
+            console.log(message, "收到位置消息");
+          }, //收到位置消息
+
+          onFileMessage: function(message) {
+            console.log(message, "收到文件消息");
+          }, //收到文件消息
+
+          onVideoMessage: function(message) {
+            //音频
+            var options = {
+              url: message.url
+            };
+            var objectURL;
+            options.onFileDownloadComplete = response => {
+              //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
+              objectURL = _this.$webim.utils.parseDownloadResponse.call(
+                _this.$imConn,
+                response
+              );
+            };
+
+            options.onFileDownloadError = () => {
+              //音频下载失败
+              console.log("音频下载失败");
+            };
+
+            //通知服务器将音频转为mp3
+            options.headers = {
+              Accept: "audio/mp3"
+            };
+            _this.$webim.utils.download.call(_this.$imConn, options);
+
+            var from = message.from; //from user
+            var to = message.to; //go to user
+
+            //获得当前时间 年-月-日-时-分
+            var dates = _this._getDate();
+            var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
+              _this._getDate().date
+            } ${_this._getDate().hours}:${_this._getDate().minutes}`;
+            var url = "Member-userInfo";
+            var token = _this.getUserInfo().token;
+            var params = {
+              token,
+              phone: from
+            };
+            var obj = {};
+            _this.__initAction(url, params, (res, s) => {
+              if (s == 1) {
+                var data = res.data;
+                obj.userName = data.lastName;
+                obj.portrait = data.portrait;
+                obj.strDate = strDate;
+                obj.record = options.url;
+                obj.userNum = from;
+                obj.toUser = to;
+                setTimeout(() => {
+                  _this.localData = _this.$store.state.msgDataList;
+                  _this.localData.push(obj);
+                  _this.$store.commit("msgDataListChange", _this.localData);
+                }, 300);
+              }
+            });
+
+            console.log(message, "收到音频文件");
+          }, //收到视频消息
+
+          onPresence: function(message) {
+            console.log(message, "“广播”或“发布-订阅”消息");
+          }, //处理“广播”或“发布-订阅”消息，如联系人订阅请求、处理群组、聊天室被踢解散等消息
+
+          onRoster: function(message) {
+            console.log(message, "处理好友申请");
+          }, //处理好友申请
+
+          onInviteMessage: function(message) {
+            console.log(message, "处理群组邀请");
+          }, //处理群组邀请
+
+          onOnline: function(message) {
+            console.log(message, "本机网络连接成功");
+          }, //本机网络连接成功
+
+          onOffline: function(message) {
+            console.log(message, "本机网络掉线");
+          }, //本机网络掉线
+
+          onError: function(message) {
+            _this.isWebImCode = true; //再次尝试登录
+            setTimeout(() => {
+              _this.isWebImCode = false;
+            }, 500);
+            // console.log(message, "失败");
+          }, //失败回调
+
+          onBlacklistUpdate: function(list) {
+            //黑名单变动
+            // 查询黑名单，将好友拉黑，将好友从黑名单移除都会回调这个函数，list则是黑名单现有的所有好友信息
+            console.log(list);
+          },
+
+          onReceivedMessage: function(message) {
+            console.log(message, "收到消息送达服务器回执");
+          }, //收到消息送达服务器回执
+
+          onDeliveredMessage: function(message) {
+            console.log(message, "收到消息送达客户端回执");
+          }, //收到消息送达客户端回执
+
+          onReadMessage: function(message) {
+            console.log(message, "收到消息已读回执");
+          }, //收到消息已读回执
+
+          onCreateGroup: function(message) {
+            console.log(message, "创建群组成功回执");
+          }, //创建群组成功回执（需调用createGroupNew）
+
+          onMutedMessage: function(message) {
+            console.log(message, "群组被禁言");
+          } //如果用户在A群组被禁言，在A群发消息会走这个回调并且消息不会传递给群其它成员
+        });
       } else {
         this.isWebImCode = true;
         this._log("环信登录异常");
         return;
       }
-      this.$imOption.user = this.userName;
-      this.$imOption.pwd = this.userName;
-      this.$imConn.open(this.$imOption); //登录
-      // this._log("登录Im...")
-
-      this.$imConn.listen({
-        //添加相应的callback
-        onOpened: function(message) {
-          //连接成功回调
-          // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
-          // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
-          // 则无需调用conn.setPresence();
-          _this._log("登录成功");
-          // _this.isWebImCode = false; //停止登录
-          // console.log(message, "连接成功...");
-        },
-        onClosed: function(message) {
-          _this._log("登录异常");
-          _this.isWebImCode = true; //再次尝试登录
-
-          setTimeout(() => {
-            _this.isWebImCode = false;
-          }, 500);
-          // console.log(message, "连接关闭回调");
-        }, //连接关闭回调
-
-        onTextMessage: function(message) {
-          var msg = message.data;
-          var from = message.from;
-          var to = message.to;
-          //获得当前时间 年-月-日-时-分
-          var dates = _this._getDate();
-          var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
-            _this._getDate().date
-          } ${_this._getDate().hours}:${_this._getDate().minutes}`;
-          //获得用户详情
-          var url = "Member-userInfo";
-          var token = _this.getUserInfo().token;
-          var params = {
-            token,
-            phone: from
-          };
-          var obj = {}; //存储对象
-          _this.__initAction(url, params, (res, s) => {
-            if (s == 1) {
-              var data = res.data;
-              obj.userName = data.memberData.lastName;
-              obj.portrait = data.memberData.portrait;
-              obj.strDate = strDate;
-              obj.txt = [];
-              var obk = {
-                text: msg
-              };
-              obj.txt.push(obk);
-              obj.fromNum = from;
-              obj.toNum = to;
-              setTimeout(() => {
-                _this.localData = _this.$store.state.msgDataList;
-                _this.localData.push(obj);
-                _this.$store.commit("msgDataListChange", _this.localData);
-              }, 200);
-            }
-          });
-          // msg = msg.split(/:{2}RIG:{2}/);
-          // obj.userName = msg[0];
-          // obj.portrait = msg[1];
-          // obj.strDate = msg[2];
-          // obj.txt = [];
-          // var obk = {
-          //   text: msg[3]
-          // };
-          // obj.txt.push(obk);
-          // obj.userNum = from;
-          // obj.toUser = to;
-          // setTimeout(() => {
-          //   _this.localData = _this.$store.state.msgDataList;
-          //   _this.localData.push(obj);
-          //   _this.$store.commit("msgDataListChange", _this.localData);
-          // }, 300);
-          console.log(message, "收到文本消息");
-        }, //收到文本消息
-
-        onEmojiMessage: function(message) {
-          var info = message.data;
-          var from = message.from;
-          var to = message.to;
-          //获得当前时间 年-月-日-时-分
-          var dates = _this._getDate();
-          var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
-            _this._getDate().date
-          } ${_this._getDate().hours}:${_this._getDate().minutes}`;
-          //获得用户详情
-          var url = "Member-userInfo";
-          var token = _this.getUserInfo().token;
-          var params = {
-            token,
-            phone: from
-          };
-          var obj = {};
-          _this.__initAction(url, params, (res, s) => {
-            if (s == 1) {
-              var data = res.data;
-              console.log(data);
-              obj.userName = data.memberData.lastName;
-              obj.portrait = data.memberData.portrait;
-              obj.strDate = strDate;
-              obj.txt = [];
-              for (var key in info) {
-                if (info[key]) {
-                  if (info[key].type == "txt") {
-                    var objt = {
-                      text: info[key].data
-                    };
-                    obj.txt[key] = objt;
-                  } else if (info[key].type == "emoji") {
-                    var obju = {
-                      url: info[key].data
-                    };
-                    obj.txt[key] = obju;
-                  }
-                }
-              }
-              obj.fromNum = from;
-              obj.toNum = to;
-              setTimeout(() => {
-                _this.localData = _this.$store.state.msgDataList;
-                _this.localData.push(obj);
-                _this.$store.commit("msgDataListChange", _this.localData);
-              }, 200);
-            }
-          });
-          console.log(message, "收到表情消息");
-        }, //收到表情消息
-
-        onPictureMessage: function(message) {
-          console.log(message, "收到图片消息");
-        }, //收到图片消息
-
-        onCmdMessage: function(message) {
-          console.log(message, "收到命令消息");
-        }, //收到命令消息
-
-        onAudioMessage: function(message) {
-          console.log(message, "收到音频消息");
-          var options = {
-            url: message.filename
-          };
-          var objectURL;
-          options.onFileDownloadComplete = response => {
-            //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
-            objectURL = _this.$webim.utils.parseDownloadResponse.call(
-              _this.$imConn,
-              response
-            );
-          };
-
-          options.onFileDownloadError = () => {
-            //音频下载失败
-            console.log("音频下载失败");
-          };
-
-          //通知服务器将音频转为mp3
-          options.headers = {
-            Accept: "audio/mp3"
-          };
-          _this.$webim.utils.download.call(_this.$imConn, options);
-
-          var from = message.from; //from user
-          var to = message.to; //go to user
-
-          //获得当前时间 年-月-日-时-分
-          var dates = _this._getDate();
-          var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
-            _this._getDate().date
-          } ${_this._getDate().hours}:${_this._getDate().minutes}`;
-          var url = "Member-userInfo";
-          var token = _this.getUserInfo().token;
-          var params = {
-            token,
-            phone: from
-          };
-          var obj = {};
-          _this.__initAction(url, params, (res, s) => {
-            if (s == 1) {
-              var data = res.data;
-              obj.userName = data.lastName;
-              obj.portrait = data.portrait;
-              obj.strDate = strDate;
-              obj.record = options.url;
-              obj.fromNum = from;
-              obj.toNum = to;
-              setTimeout(() => {
-                _this.localData = _this.$store.state.msgDataList;
-                console.log(obj);
-                _this.localData.push(obj);
-                console.log(obj);
-                _this.$store.commit("msgDataListChange", _this.localData);
-              }, 300);
-            }
-          });
-        }, //收到音频消息
-
-        onLocationMessage: function(message) {
-          console.log(message, "收到位置消息");
-        }, //收到位置消息
-
-        onFileMessage: function(message) {
-          console.log(message, "收到文件消息");
-        }, //收到文件消息
-
-        onVideoMessage: function(message) {
-          //音频
-          var options = {
-            url: message.url
-          };
-          var objectURL;
-          options.onFileDownloadComplete = response => {
-            //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
-            objectURL = _this.$webim.utils.parseDownloadResponse.call(
-              _this.$imConn,
-              response
-            );
-          };
-
-          options.onFileDownloadError = () => {
-            //音频下载失败
-            console.log("音频下载失败");
-          };
-
-          //通知服务器将音频转为mp3
-          options.headers = {
-            Accept: "audio/mp3"
-          };
-          _this.$webim.utils.download.call(_this.$imConn, options);
-
-          var from = message.from; //from user
-          var to = message.to; //go to user
-
-          //获得当前时间 年-月-日-时-分
-          var dates = _this._getDate();
-          var strDate = `${_this._getDate().years}-${_this._getDate().month}-${
-            _this._getDate().date
-          } ${_this._getDate().hours}:${_this._getDate().minutes}`;
-          var url = "Member-userInfo";
-          var token = _this.getUserInfo().token;
-          var params = {
-            token,
-            phone: from
-          };
-          var obj = {};
-          _this.__initAction(url, params, (res, s) => {
-            if (s == 1) {
-              var data = res.data;
-              obj.userName = data.lastName;
-              obj.portrait = data.portrait;
-              obj.strDate = strDate;
-              obj.record = options.url;
-              obj.userNum = from;
-              obj.toUser = to;
-              setTimeout(() => {
-                _this.localData = _this.$store.state.msgDataList;
-                _this.localData.push(obj);
-                _this.$store.commit("msgDataListChange", _this.localData);
-              }, 300);
-            }
-          });
-
-          console.log(message, "收到音频文件");
-        }, //收到视频消息
-
-        onPresence: function(message) {
-          console.log(message, "“广播”或“发布-订阅”消息");
-        }, //处理“广播”或“发布-订阅”消息，如联系人订阅请求、处理群组、聊天室被踢解散等消息
-
-        onRoster: function(message) {
-          console.log(message, "处理好友申请");
-        }, //处理好友申请
-
-        onInviteMessage: function(message) {
-          console.log(message, "处理群组邀请");
-        }, //处理群组邀请
-
-        onOnline: function(message) {
-          console.log(message, "本机网络连接成功");
-        }, //本机网络连接成功
-
-        onOffline: function(message) {
-          console.log(message, "本机网络掉线");
-        }, //本机网络掉线
-
-        onError: function(message) {
-          _this.isWebImCode = true; //再次尝试登录
-          setTimeout(() => {
-            _this.isWebImCode = false;
-          }, 500);
-          // console.log(message, "失败");
-        }, //失败回调
-
-        onBlacklistUpdate: function(list) {
-          //黑名单变动
-          // 查询黑名单，将好友拉黑，将好友从黑名单移除都会回调这个函数，list则是黑名单现有的所有好友信息
-          console.log(list);
-        },
-
-        onReceivedMessage: function(message) {
-          console.log(message, "收到消息送达服务器回执");
-        }, //收到消息送达服务器回执
-
-        onDeliveredMessage: function(message) {
-          console.log(message, "收到消息送达客户端回执");
-        }, //收到消息送达客户端回执
-
-        onReadMessage: function(message) {
-          console.log(message, "收到消息已读回执");
-        }, //收到消息已读回执
-
-        onCreateGroup: function(message) {
-          console.log(message, "创建群组成功回执");
-        }, //创建群组成功回执（需调用createGroupNew）
-
-        onMutedMessage: function(message) {
-          console.log(message, "群组被禁言");
-        } //如果用户在A群组被禁言，在A群发消息会走这个回调并且消息不会传递给群其它成员
-      });
+      
     },
 
     loadImageState() {
@@ -851,7 +853,7 @@ export default {
 
     isWebImCode() {
       this.initIm();
-	},
+	  },
 	// $route(to,from){
 	//    console.log("to:--",to.path);
 	//    console.log("from:--",from.path);

@@ -64,8 +64,9 @@
 					<router-link :to="{path:'/service_detail',query:{id:tmp.id,code:tab_code,lng:tmp.lng,lat:tmp.lat,path:0}}" class="cards w-100 bg-white mb-1" v-for="(tmp,i) in info_demand_list" :key="i">
 						<self-info-card :data="tmp"></self-info-card>
 					</router-link>
-					<a class="mt-5" href="javascript:;" v-if="info_demand_list.length<=0">
-						<self-no-data :title="loadMord" size="16"></self-no-data>
+					<a class="mt-5" href="javascript:;" v-if="isNuno">
+						<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+						<img :src="Img">
 					</a>
 				</div>
 
@@ -75,8 +76,9 @@
 					<router-link :to="{ path: '/skill_detail', query: {id:tmp.id,code:tab_code,lng:tmp.lng,lat:tmp.lat,path:0}}" class="cards mb-1 w-100 bg-white" v-for="(tmp,i) in info_skill_list" :key="i">
 						<self-info-card :data="tmp"></self-info-card>
 					</router-link>
-					<a class="mt-5" href="javascript:;" v-if="info_skill_list.length<=0">
-						<self-no-data :title="loadMord" size="16"></self-no-data>
+					<a class="mt-5" href="javascript:;" v-if="isNuno">
+						<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+						<img :src="Img">
 					</a>
 				</div>
 
@@ -86,8 +88,9 @@
 					<router-link :to="/post_info/+item.id" class="post_info_cards bg-white w-100 mb-1" v-for="(item,i) in interviewerList" :key="i">
 						<self-post-card :data="item" class="bg-white"></self-post-card>
 					</router-link>
-					<a class="mt-5" href="javascript:;" v-if="interviewerList.length<=0">
-						<self-no-data :title="loadMord" size="16"></self-no-data>
+					<a class="mt-5" href="javascript:;" v-if="isNuno">
+						<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+						<img :src="Img">
 					</a>
 				</div>
 
@@ -96,8 +99,9 @@
 					<router-link :to="/resumeinfo/+item.id" class="resume_items w-100 bg-white mb-1" v-for="(item,i) in resumeInfoList" :key="i">
 						<self-resume-card :data="item"></self-resume-card>
 					</router-link>
-					<a class="mt-5" href="javascript:;" v-if="resumeInfoList.length<=0">
-						<self-no-data :title="loadMord" size="16"></self-no-data>
+					<a class="mt-5" href="javascript:;" v-if="isNuno">
+						<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+						<img :src="Img">
 					</a>
 				</div>
 
@@ -450,7 +454,9 @@ export default {
 				height: true
 			},
 			infoRid: null, //用户类型
-			isImage: false //图片状态
+			isImage: false, //图片状态
+			Img:"",
+			isNuno:false
 		};
 	},
 	created() {
@@ -458,37 +464,46 @@ export default {
 		this.tabShowList = this.toastBtnList[0];
 		this.footer_tabbar_code = 2;
 		//定义定位信息
+		var select_data = this.getCache("select_data", 2);
 		var userInfo = this.getCache("user_info", 2);
 		if(userInfo) {
-			let location = userInfo.location;
-			if(location) {
-				this.lon = location.lng;
+			if(!select_data.select_city) {
+				let location = this.getCache("location",2);
+				this.lon = location.lon;
 				this.lat = location.lat;
 				this.cityId = location.cityId;
 				this.location_city = location.city;
 				this.token = userInfo.token;
 				this.init();
 			}else {
-				let locations = this.getCache("location",2);
-				this.lon = locations.lon;
-				this.lat = locations.lat;
-				this.cityId = locations.cityId;
-				this.location_city = locations.city;
-
+				this.lon = select_data.select_city.lng;
+				this.lat = select_data.select_city.lat;
+				this.cityId = select_data.select_city.city_id;
+				this.location_city = select_data.select_city.city_name;
+				this.token = userInfo.token;
+				this.init();
+			}
+		}else {
+			if(!select_data.select_city) {
+				let location = this.getCache("location",2);
+				this.lon = location.lon;
+				this.lat = location.lat;
+				this.cityId = location.cityId;
+				this.location_city = location.city;
+				
+				this.getPageInfo();
+				this.getUserInfos();
+				this.removeCache();
+			}else {
+				this.lon = select_data.select_city.lng;
+				this.lat = select_data.select_city.lat;
+				this.cityId = select_data.select_city.city_id;
+				this.location_city = select_data.select_city.city_name;
+				
 				this.getPageInfo();
 				this.getUserInfos();
 				this.removeCache();
 			}
-		}else {
-			let location = this.getCache("location",2);
-			this.lon = location.lon;
-			this.lat = location.lat;
-			this.cityId = location.cityId;
-			this.location_city = location.city;
-
-			this.getPageInfo();
-			this.getUserInfos();
-			this.removeCache();
 		}
 	},
 	mounted() {
@@ -497,9 +512,8 @@ export default {
 		this.toastHeight.height = `${h * 0.07}px`;
 		this.toastHeight.top = `${h * 0.07 + 120}px`;
 		this.informationImage.top = `${h * 0.07}px`;
-
-		
-
+        var i = this.getCache("NULL_SALARY_IMG");
+		this.Img = this.str2json(i).val;
 	},
 	updated() {
 		this.autoFiexd();
@@ -737,118 +751,123 @@ export default {
 		getDataInfoList(url, params, type, dataList) { //  请求数据
 			this.loadMord = '';
 			this.__initAction(url, params, (res, s) => {
-				if (s == 1) {
-					this.selfLoadClosed();
-					this.selfMainLoadClosed();
-					var list = res.data;
-					if (list) {
-						var code = this.tab_code;
-						this.headerTabbarLsit[code].count = res.count;
-						switch (type) {
-							case 1:
-								for (let data of list) {
-									var arr = {};
-									arr.title = data.title;
-									arr.name = data.c_user.lastName;
-									arr.logo = data.c_user.portrait;
-									arr.imgs = data.prices;
-									arr.hot = data.view;
-									arr.lng = data.lon;
-									arr.lat = data.lat;
-									arr.distance = data.distance;
-									arr.time = data.create_time;
-									// arr.detail = data.infos;
-									arr.id = data.id;
-									arr.salary = data.serviceDatd;
-									dataList.push(arr);
-								}
-								break;
-							case 2:
-								for (let data of list) {
-									var arr = {};
-									arr.title = data.title;
-									arr.name = data.c_user.lastName;
-									arr.logo = data.c_user.portrait;
-									arr.imgs = data.images;
-									arr.hot = data.view;
-									// arr.type = 0;
-									arr.lng = data.lon;
-									arr.lat = data.lat;
-									arr.distance = data.distance;
-									arr.time = data.create_time;
-									arr.detail = data.infos;
-									arr.id = data.id;
-									arr.salary = data.price;
-									dataList.push(arr);
-								}
-								break;
-							case 3:
-								for (let data of list) {
-									var arr = {};
-									arr.title = data.title;
-									arr.name = data.c_user.lastName;
-									arr.logo = data.c_user.portrait;
-									arr.addr = data.addressInfo;
-									arr.hot = data.view;
-									// arr.type = 0;
-									arr.lng = data.lon;
-									arr.lat = data.lat;
-									arr.position = "人事经理";
-									arr.distance = data.distance;
-									arr.time = data.create_time;
-									// arr.detail = data.infos;
-									arr.id = data.id;
-									arr.salary = data.prices;
-									arr.education = data.education;
-									arr.experience = data.exp;
-									dataList.push(arr);
-								}
-								break;
-							case 4:
-								for (let data of list) {
-					
-									var arr = {};
-									// var post = data.resumeIndustry;
-									// post = post.split(",");
-									arr.post = data.resumeIndustry;
-									arr.name = data.consignee;
-									arr.logo = data.c_user.portrait;
-									// arr.addr = data.addressInfo;
-									arr.hot = data.view;
-									// arr.type = 0;
-									arr.lng = data.lon;
-									arr.lat = data.lat;
-									// arr.position = "人事经理";
-									// arr.distance = data.distance;
-									arr.time = data.create_time;
-									arr.detail = data.infos;
-									arr.id = data.id;
-									arr.salary = data.salary;
-									arr.education = data.education;
-									arr.experience = data.Working + "年";
-									dataList.push(arr);
-								}
-								break;
-							default:
-								this._log(data);
-								break;
+				if(res.data.count == 0) {
+					this.isNuno = true;
+				}else {
+					this.isNuno = false;
+					if (s == 1) {
+						this.selfLoadClosed();
+						this.selfMainLoadClosed();
+						var list = res.data;
+						if (list) {
+							var code = this.tab_code;
+							this.headerTabbarLsit[code].count = res.count;
+							switch (type) {
+								case 1:
+									for (let data of list) {
+										var arr = {};
+										arr.title = data.title;
+										arr.name = data.c_user.lastName;
+										arr.logo = data.c_user.portrait;
+										arr.imgs = data.prices;
+										arr.hot = data.view;
+										arr.lng = data.lon;
+										arr.lat = data.lat;
+										arr.distance = data.distance;
+										arr.time = data.create_time;
+										// arr.detail = data.infos;
+										arr.id = data.id;
+										arr.salary = data.serviceDatd;
+										dataList.push(arr);
+									}
+									break;
+								case 2:
+									for (let data of list) {
+										var arr = {};
+										arr.title = data.title;
+										arr.name = data.c_user.lastName;
+										arr.logo = data.c_user.portrait;
+										arr.imgs = data.images;
+										arr.hot = data.view;
+										// arr.type = 0;
+										arr.lng = data.lon;
+										arr.lat = data.lat;
+										arr.distance = data.distance;
+										arr.time = data.create_time;
+										arr.detail = data.infos;
+										arr.id = data.id;
+										arr.salary = data.price;
+										dataList.push(arr);
+									}
+									break;
+								case 3:
+									for (let data of list) {
+										var arr = {};
+										arr.title = data.title;
+										arr.name = data.c_user.lastName;
+										arr.logo = data.c_user.portrait;
+										arr.addr = data.addressInfo;
+										arr.hot = data.view;
+										// arr.type = 0;
+										arr.lng = data.lon;
+										arr.lat = data.lat;
+										arr.position = "人事经理";
+										arr.distance = data.distance;
+										arr.time = data.create_time;
+										// arr.detail = data.infos;
+										arr.id = data.id;
+										arr.salary = data.prices;
+										arr.education = data.education;
+										arr.experience = data.exp;
+										dataList.push(arr);
+									}
+									break;
+								case 4:
+									for (let data of list) {
+						
+										var arr = {};
+										// var post = data.resumeIndustry;
+										// post = post.split(",");
+										arr.post = data.resumeIndustry;
+										arr.name = data.consignee;
+										arr.logo = data.c_user.portrait;
+										// arr.addr = data.addressInfo;
+										arr.hot = data.view;
+										// arr.type = 0;
+										arr.lng = data.lon;
+										arr.lat = data.lat;
+										// arr.position = "人事经理";
+										// arr.distance = data.distance;
+										arr.time = data.create_time;
+										arr.detail = data.infos;
+										arr.id = data.id;
+										arr.salary = data.salary;
+										arr.education = data.education;
+										arr.experience = data.Working + "年";
+										dataList.push(arr);
+									}
+									break;
+								default:
+									this._log(data);
+									break;
+							}
 						}
-					}
-					if (res.code == '1000000000') {
-						this.loadMord = '暂无数据...';
-					}
-					if (this.$refs["infinitescrollDemo"]) {
-						try {
-							this.$refs["infinitescrollDemo"].$emit(
-								"ydui.infinitescroll.finishLoad"
-							);
-						} catch (e) {
-							console.log("要不你刷新试试");
+						if (res.code == '1000000000') {
+							this.loadMord = '暂无数据...';
 						}
+						if (this.$refs["infinitescrollDemo"]) {
+							try {
+								this.$refs["infinitescrollDemo"].$emit(
+									"ydui.infinitescroll.finishLoad"
+								);
+							} catch (e) {
+								console.log("要不你刷新试试");
+							}
+						}
+					} else {
+						console.log(res.info);
+						this._msg(res.info);
 					}
-				} else {
-					console.log(res.info);
-					this._msg(res.info);
 				}
 			});
 		},
@@ -1055,78 +1074,83 @@ export default {
 			var that = this;
 			var token = this.token;
 			this.__initAction(url, params, (res, s) => {
-				if (s == 1) {
-					this.selfLoadClosed();
-					var list = res.data;
-					console.log(list)
-					if (list) {
-						for (let data of list) {
-							var arr = {};
-								arr.logo = data.portrait;
-								arr.title = data.title;
-								arr.name = data.c_user.lastName;
-								arr.lng = data.lon;
-								arr.lat = data.lat;
-								arr.id = data.id;
-							if (type == 1) {
-								arr.imgs = data.prices;
-								arr.hot = data.view;
-								// arr.type = 0;
-								arr.distance = data.distance;
-								arr.time = data.create_time;
-								arr.detail = data.infos;
-								arr.salary = data.serviceDatd;
-								dataList.push(arr);
-							}
-							if (type == 2) {
-								arr.imgs = data.images;
-								arr.hot = data.view;
-								// arr.type = 0;
-								arr.distance = data.distance;
-								arr.time = data.create_time;
-								arr.detail = data.infos;
-								arr.salary = data.price;
-								dataList.push(arr);
-							}
-							if (type == 3) {
-								arr.addr = data.addressInfo;
-								arr.hot = data.view;
-								// arr.type = 0;
-								arr.position = "人事经理";
-								arr.distance = data.distance;
-								arr.time = data.create_time;
-								// arr.detail = data.infos;
-								arr.salary = data.prices;
-								arr.education = data.education;
-								arr.experience = data.exp;
-								dataList.push(arr);
-							}
-							if (type == 4) {
-								arr.post = data.resumeIndustry;
-								arr.name = data.consignee;
-								arr.hot = data.view;
-								arr.time = data.create_time;
-								arr.detail = data.infos;
-								arr.salary = data.salary;
-								arr.education = data.education;
-								arr.experience = data.Working + "年";
-								dataList.push(arr);
+				if(res.data.count == 0) {
+					this.isNuno = true;
+				}else {
+					this.isNuno = false;
+					if (s == 1) {
+						console.log(res)
+						this.selfLoadClosed();
+						var list = res.data;
+						if (list) {
+							for (let data of list) {
+								var arr = {};
+									arr.logo = data.portrait;
+									arr.title = data.title;
+									arr.name = data.c_user.lastName;
+									arr.lng = data.lon;
+									arr.lat = data.lat;
+									arr.id = data.id;
+								if (type == 1) {
+									arr.imgs = data.prices;
+									arr.hot = data.view;
+									// arr.type = 0;
+									arr.distance = data.distance;
+									arr.time = data.create_time;
+									arr.detail = data.infos;
+									arr.salary = data.serviceDatd;
+									dataList.push(arr);
+								}
+								if (type == 2) {
+									arr.imgs = data.images;
+									arr.hot = data.view;
+									// arr.type = 0;
+									arr.distance = data.distance;
+									arr.time = data.create_time;
+									arr.detail = data.infos;
+									arr.salary = data.price;
+									dataList.push(arr);
+								}
+								if (type == 3) {
+									arr.addr = data.addressInfo;
+									arr.hot = data.view;
+									// arr.type = 0;
+									arr.position = "人事经理";
+									arr.distance = data.distance;
+									arr.time = data.create_time;
+									// arr.detail = data.infos;
+									arr.salary = data.prices;
+									arr.education = data.education;
+									arr.experience = data.exp;
+									dataList.push(arr);
+								}
+								if (type == 4) {
+									arr.post = data.resumeIndustry;
+									arr.name = data.consignee;
+									arr.hot = data.view;
+									arr.time = data.create_time;
+									arr.detail = data.infos;
+									arr.salary = data.salary;
+									arr.education = data.education;
+									arr.experience = data.Working + "年";
+									dataList.push(arr);
+								}
 							}
 						}
-					}
-					this.param.page++;
-					if (this.$refs["infinitescrollDemo"]) {
-						try {
-							this.$refs["infinitescrollDemo"].$emit(
-								"ydui.infinitescroll.finishLoad"
-							);
-						} catch (e) {
-							console.log("要不你刷新试试");
+						this.param.page++;
+						if (this.$refs["infinitescrollDemo"]) {
+							try {
+								this.$refs["infinitescrollDemo"].$emit(
+									"ydui.infinitescroll.finishLoad"
+								);
+							} catch (e) {
+								console.log("要不你刷新试试");
+							}
 						}
+						this.selfLoadClosed();
+					} else {
+						this._msg(res.info);
 					}
-					this.selfLoadClosed();
-				} else {
-					this._msg(res.info);
 				}
 			});
 		}
@@ -1214,4 +1238,5 @@ export default {
 			align-items: center;
 		}
 	}
+	.info_content .mt-5 img{ width: 80%; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);z-index: -99; }
 </style>

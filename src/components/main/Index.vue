@@ -232,10 +232,18 @@ export default {
 			this.param = this.initPage();
 			this.params = this.initParam();
 
-			var location = this.getCache("location", 2);
-			if(location) {
+			let location = this.getCache("location",2);
+			var select_data = this.getCache("select_data", 2);
+			if(select_data) {
+				if(select_data.select_city) {
+				  this.pageInfo.location_city = select_data.select_city.city_name;
+				}else {
+					this.pageInfo.location_city = location.location_city;
+				}
+			}else {
 				this.pageInfo.location_city = location.location_city;
 			}
+			
 			this.initIndex();
 			this.getMainNewList();
 		},
@@ -354,17 +362,40 @@ export default {
 			});
 		},
 
-		getMainNewList() { //获取首页最新发布
-			//   var params = {
-			//     token: this.getToken(),
-			//     lat: this.lat,
-			//     lon: this.lon,
-			//     cityId: this.cityId,
-			//     page: this.param.page,
-			//     length: this.param.length
-			//   };
-			// console.log(this.getUserInfo());
-			this.__initAction("Index-getListNewestSemands", this.params, (res, s) => {
+		getMainNewList() { //获取首页最新发布cityId: 610100
+			var select_data = this.getCache("select_data", 2);
+			var location = this.getCache("location", 2);
+			if(select_data) {
+				if(select_data.select_city) {
+						var params = {
+						token: this.getToken(),
+						lat: select_data.select_city.lat,
+						lon: select_data.select_city.lng,
+						cityId: select_data.select_city.city_id,
+						page: this.param.page,
+						length: this.param.length
+					};
+				}else {
+					var params = {
+						token: this.getToken(),
+						lat: location.lat,
+						lon: location.lon,
+						cityId: location.cityId,
+						page: this.param.page,
+						length: this.param.length
+					};
+				}
+			}else {
+				var params = {
+			    token: this.getToken(),
+			    lat: location.lat,
+			    lon: location.lon,
+			    cityId: location.cityId,
+			    page: this.param.page,
+			    length: this.param.length
+			  };
+			}
+			this.__initAction("Index-getListNewestSemands", params, (res, s) => {
 				if (s == 1) {
 					this.param.count = res.count;
 					for (let it of res.data) {

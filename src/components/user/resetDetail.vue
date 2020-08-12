@@ -88,8 +88,13 @@ export default {
 			var tel = this.getQuery().tel;
 			var inputType;
 			var inputTitle;
+			console.log(type)
 			switch (type) {
 				case "pass": //密码
+					inputType = "password";
+					inputTitle = "密码";
+					break;
+				case "setPass": //密码
 					inputType = "password";
 					inputTitle = "密码";
 					break;
@@ -154,6 +159,14 @@ export default {
 							loginName: loginName
 						};
 						break;
+					case "setPass": //密码
+						var url = "Member-upppass";
+						var obj = {
+							token: token,
+							pass: login,
+							loginName: loginName
+						};
+						break;
 					case "tranPass": //安全密码
 					case "tranPass2": //安全密码
 						var url = "Member-upppaypass";
@@ -190,6 +203,11 @@ export default {
 						that._msg(`${res.info}`);
 						that.funs();
 						that.$router.go(-3);
+						if (type == 'setPass') {
+							this.__Sleep(e => {
+							this.__Href("/PersonalInformation");
+						});
+						}
 					}
 				})
 			}

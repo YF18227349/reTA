@@ -23,7 +23,6 @@ export default {
 			config.length = 10;
 			config.deBug = true;
 			this.__initAction("Tools-getLatLon", {}, (res, s) => {
-				console.log(res)
 				if (s == 1) {
 					config.location = {};
 					config.location.cityId = String(res.data.cityId);

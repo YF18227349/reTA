@@ -471,7 +471,10 @@ export default {
 
 		handleBottomClick(index) {
 			if (index == 1) {
+				var select_data = this.getCache("select_data", 2);
 				this.delCacheAll();
+				this.setCache("select_data", JSON.stringify(select_data));
+				this.delCache("user_info");
 				// this.removeCache("footTabbarChange");
 				setTimeout(() => {
 					this.__Href("/");

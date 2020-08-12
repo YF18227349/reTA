@@ -1,6 +1,6 @@
 // import Path from "../image/faces";
 module.exports = {
-    path: "http://s.daydaymiss.com/faces/",
+    path: "https://base.sxtian.com/public/static/faces/",
     map: {
         "[):]": "ee_1.png",
         "[:D]": "ee_2.png",

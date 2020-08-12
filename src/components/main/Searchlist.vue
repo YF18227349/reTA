@@ -67,7 +67,8 @@
 					<self-info-card :data="tmp"></self-info-card>
 				</router-link>
 				<a class="mt-5" href="javascript:;" v-if="info_demand_list.length<=0">
-					<self-no-data :title="loadMord" size="16"></self-no-data>
+					<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+					<img :src="Img">
 				</a>
 			</div>
 
@@ -78,7 +79,8 @@
 					<self-info-card :data="tmp"></self-info-card>
 				</router-link>
 				<a class="mt-5" href="javascript:;" v-if="info_skill_list.length<=0">
-					<self-no-data :title="loadMord" size="16"></self-no-data>
+					<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+					<img :src="Img">
 				</a>
 			</div>
 
@@ -89,8 +91,8 @@
 					<self-post-card :data="item" class="bg-white"></self-post-card>
 				</router-link>
 				<a class="mt-5 ifImg" href="javascript:;" v-if="interviewerList.length<=0">
-					<!-- <img :src="Img"> -->
-					<self-no-data :title="loadMord" size="16"></self-no-data>
+					<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+					<img :src="Img">
 				</a>
 			</div>
 
@@ -100,7 +102,8 @@
 					<self-resume-card :data="item"></self-resume-card>
 				</router-link>
 				<a class="mt-5" href="javascript:;" v-if="resumeInfoList.length<=0">
-					<self-no-data :title="loadMord" size="16"></self-no-data>
+					<!-- <self-no-data :title="loadMord" size="16"></self-no-data> -->
+					<img :src="Img">
 				</a>
 			</div>
 
@@ -460,8 +463,7 @@ export default {
 		// }, 1000);
 
 		var i = this.getCache("NULL_SALARY_IMG");
-		console.log(i)
-		// this.Img = this.str2json(i).val;
+		this.Img = this.str2json(i).val;
 	},
 	updated() {
 		this.save_page_info();
@@ -473,22 +475,26 @@ export default {
 		this.tabShowList = this.toastBtnList[0];
 		this.footer_tabbar_code = 2;
 		//定义定位信息
+		var select_data = this.getCache("select_data", 2);
 		var userInfo = this.getCache("user_info", 2);
 		if(userInfo) {
-            let location = this.getCache("location",2);
-			this.lon = location.lon;
-			this.lat = location.lat;
-			this.cityId = location.cityId;
-			this.location_city = location.city;
+			// let location = this.getCache("location",2);
+			this.lon = select_data.select_city.lon;
+			this.lat = select_data.select_city.lat;
+			this.cityId = select_data.select_city.city_id;
+			this.location_city = select_data.select_city.city_name;
+			// this.lon = location.lon;
+			// this.lat = location.lat;
+			// this.cityId = location.cityId;
+			// this.location_city = location.city;
 			this.token = userInfo.token;
 
 			this.init();
 		}else {
-            let location = this.getCache("location",2);
-			this.lon = location.lon;
-			this.lat = location.lat;
-			this.cityId = location.cityId;
-			this.location_city = location.city;
+            this.lon = select_data.select_city.lon;
+			this.lat = select_data.select_city.lat;
+			this.cityId = select_data.select_city.city_id;
+			this.location_city = select_data.select_city.city_name;
 
 			this.getPageInfo();
 			this.getUserInfos();

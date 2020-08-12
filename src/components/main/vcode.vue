@@ -77,6 +77,7 @@ export default {
         strType: null,
         title: "",
         device: "",
+        typeN: 1,
         pid: 0
       },
       time: 59,
@@ -92,6 +93,7 @@ export default {
   },
 
   created() {
+    console.log(this.pageInfo)
     this.getPageData()
       .then(data => {
         return new Promise((resolve, reject) => {
@@ -154,10 +156,8 @@ export default {
         console.log(this.code);
         if (this.code.length == 4) {
           console.log("长度满足要求，请求接口中.....");
-          this._msg("正在登录请稍后...",300);
           let type = this.pageInfo.strType;
-          var url = "Tools-testTelCode",
-            telPhone = this.pageInfo.tel,
+          var telPhone = this.pageInfo.tel,
             params;
           //   var code = this.modelInput;
           var code = this.code;
@@ -165,49 +165,83 @@ export default {
 			
             return this._msg("请输入正确验证码！");
           } else {
-            if (type == "login" || type == "getpass") {
+            if (type == "login") {
               // this.$dialog.loading.open("正在登录请稍后...");
               // this.$dialog.loading.close();
-              params = {
-                telPhone,
-                code,
-                type: "login",
-                len: 4,
-                pid: this.pageInfo.pid
-              };
-            } else if (type == "reg") {
-              params = {
-                telPhone,
-                code,
-                type: "reg",
-                len: 4,
-                pid: this.pageInfo.pid
-              };
+               var url = "Tools-testTelCode",
+                params = {
+                  telPhone,
+                  code,
+                  type: "reg",
+                  len: 4,
+                  // pid: this.pageInfo.pid,
+                  pid: 0
+                };
+            }else if(type == "getpass") {
+              if (this.pageInfo.device == "手机") {
+                var url = "Tools-testTelCode",
+                params = {
+                  telPhone,
+                  code,
+                  type: "reg",
+                  len: 4,
+                  pid: this.pageInfo.pid
+                };
+              }else if (this.pageInfo.device == "邮箱") {
+                var url = "Tools-testEmailCode",
+                params = {
+                  mail:this.pageInfo.tel,
+                  code,
+                  type: "public",
+                };
+              }
+            }else if (type == "reg") {
+              if (this.pageInfo.device == "手机") {
+                var url = "Tools-testTelCode",
+                params = {
+                  telPhone,
+                  code,
+                  type: "reg",
+                  len: 4,
+                  pid: this.pageInfo.pid
+                };
+              }else if (this.pageInfo.device == "邮箱") {
+                var url = "Tools-testEmailCode",
+                params = {
+                  mail:this.pageInfo.tel,
+                  code,
+                  type: "reg",
+                };
+              }
             }
             var that = this;
             that.__initAction(url, params, (res, s) => {
               if (s == 1) {
-                this.$dialog.loading.close(); //清除缓存
-                var token = res.data.token;
-                var uid = res.data.id;
-                var rid = res.data.rid;
-                // var telPhone = res.data.loginName;
-                var portrait = res.data.portrait;
-                var user_info = {
-                  token: token,
-                  uid: uid,
-                  rid: rid,
-                  telPhone: telPhone,
-                  location: this.Global.config.location,
-                  portrait: portrait
-                };
-                this.Global.config.uid = res.data.id;
-                this.Global.config.token = user_info.token;
-                this.setCache("user_info", JSON.stringify(user_info));
+                
                 // this._msg(res.info);
+                console.log(res,type)
+
                 if (type == "login") {
                   // this._msg('登录成功')
                   //登录
+                  this.$dialog.loading.close(); //清除缓存
+                  var token = res.data.token;
+                  var uid = res.data.id;
+                  var rid = res.data.rid;
+                  var loginName = res.data.loginName;
+                  var portrait = res.data.portrait;
+                  var user_info = {
+                    token: token,
+                    uid: uid,
+                    rid: rid,
+                    telPhone: loginName,
+                    location: this.Global.config.location,
+                    portrait: portrait,
+                    // Husername:res.data.getU.entities[0].username
+                  };
+                  this.Global.config.uid = res.data.id;
+                  this.Global.config.token = user_info.token;
+                  this.setCache("user_info", JSON.stringify(user_info));
                   setTimeout(() => {
                     this.__Sleep(e => {
                       this.__Href("/");
@@ -218,28 +252,60 @@ export default {
                   //重置密码
                   setTimeout(() => {
                     var obj = {
-                      path: "/setPassWord",
-                      query: {
-                        code,
-                        tel: telPhone
-                      }
+                      code,
+                      tel: telPhone
                     };
-                    this.$router.push(obj);
+                    var path =  "/setPassWord";
+                    this.$router.push({
+                        path: path,
+                        query: obj
+                    });
                   }, 200);
                 } else if (type == "reg") {
                   // this._msg('验证通过')
                   //验证通过
-                  setTimeout(() => {
-                    this.__Sleep(e => {
-                      this.__Href("/personalInformation");
-                    });
-                  }, 200);
+                  console.log(res)
+                  this.$dialog.loading.close(); //清除缓存
+                  var token = res.data.token;
+                  var uid = res.data.id;
+                  var rid = res.data.rid;
+                  var loginName = res.data.loginName;
+                  var portrait = res.data.portrait;
+                  var user_info = {
+                    token: token,
+                    uid: uid,
+                    rid: rid,
+                    telPhone: loginName,
+                    location: this.Global.config.location,
+                    portrait: portrait,
+                    // Husername:res.data.getU.entities[0].username
+                  };
+                  this.Global.config.uid = res.data.id;
+                  this.Global.config.token = user_info.token;
+
+                  console.log(user_info)
+                  // this.setCache("user_info", JSON.stringify(user_info));
+                  // setTimeout(() => {
+                  //   this.__Sleep(e => {
+                  //      var obj = {
+                  //       type: "setPass",
+                  //       tel: this.getQuery().tel,
+                  //       // type: this.pageInfo.type
+                  //     };
+                  //     var path = `/safeResetPass/${this.pageInfo.title}`;
+                  //     console.log(path)
+                  //     this.$router.push({
+                  //       path: path,
+                  //       query: obj
+                  //     });
+                  //   });
+                  // }, 200);
                 }
               } else {
                 this._msg(res.info);
                 // 验证码有误时删除
-				this.modelInput = "";
-				this.code = [];
+                this.modelInput = "";
+                this.code = [];
               }
             });
           }
@@ -281,7 +347,8 @@ export default {
           type = "havelng";
           break;
         case "getpass":
-          type = "havelng";
+          // type = "havelng";
+          type = "public";
           break;
         case "reg":
           type = "reg";
@@ -289,31 +356,70 @@ export default {
       }
       return new Promise((resolve, reject) => {
         var that = this;
-        var url = "Tools-setTelCode";
-        console.log(this.pageInfo);
-        var params = {
-          telPhone: that.pageInfo.tel,
-          type,
-          len: 4,
-          pid: this.pageInfo.pid
-        };
-        that.__initAction(url, params, (res, s) => {
-          if (s == 1) {
-            // that._msg(res.info, 800);
-            resolve();
-          } else {
-            if (res.info == "手机号已被注册!") {
-              that._msg(res.info);
-              that.$router.back(-1);
-            } else {
-              setTimeout(() => {
-                this.__Sleep(e => {
-                  this.__Href("/login");
-                });
-              }, 500);
-            }
+        console.log(that.pageInfo.device)
+          if (that.pageInfo.device == "邮箱") {
+            var urlE = "Tools-setEmailCode";
+            var paramsE = {
+              mail: that.pageInfo.tel,
+              type,
+              len: 4,
+              pid: this.pageInfo.pid
+            };
+            that.__initAction(urlE, paramsE, (res, s) => {
+              if (s == 1) {
+                // that._msg(res.info, 800);
+                resolve();
+              } else {
+                if (res.info == "邮箱已被注册!") {
+                  that._msg(res.info);
+                  that.$router.back(-1);
+                } else {
+                  if(type == "getpass"){
+                    var obj = {
+                      tel: this.getQuery().tel,
+                      type: this.pageInfo.type
+                    };
+                    var path = `/safeResetPass/${this.pageInfo.title}`;
+                    this.$router.push({
+                      path: path,
+                      query: obj
+                    });
+                  }else if(type == "reg") {
+                    setTimeout(() => {
+                      this.__Sleep(e => {
+                        this.__Href("/login");
+                      });
+                    }, 500);
+                  }
+                }
+              }
+            });
+          } else if(that.pageInfo.device == "手机") {
+            var urlP = "Tools-setTelCode";
+            var paramsP = {
+              telPhone: that.pageInfo.tel,
+              type,
+              len: 4,
+              pid: this.pageInfo.pid
+            };
+            that.__initAction(urlP, paramsP, (res, s) => {
+              if (s == 1) {
+                // that._msg(res.info, 800);
+                resolve();
+              } else {
+                if (res.info == "手机号已被注册!") {
+                  that._msg(res.info);
+                  that.$router.back(-1);
+                } else {
+                  setTimeout(() => {
+                    this.__Sleep(e => {
+                      this.__Href("/login");
+                    });
+                  }, 500);
+                }
+              }
+            });
           }
-        });
       });
     },
 

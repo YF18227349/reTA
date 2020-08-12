@@ -640,7 +640,6 @@ export default {
 			var url = "Tloong-getMsgHistory";
 			this.__initAction(url, params, (res, s) => {
 				if (s == 1) {
-					console.log(res,s)
 					var data = res.data;
 					var count = res.count;
 					var arr = [];
@@ -816,7 +815,7 @@ export default {
 			var icon = this.$webim.Emoji;
 
 			// var basrStr = icon.path;
-			var basrStr = "http://s.daydaymiss.com/faces/";
+			var basrStr = "https://base.sxtian.com/public/static/faces/";
 
 			var map = icon.map;
 			var arrObj = this.iconMsgList;
@@ -886,7 +885,6 @@ export default {
 			// var dialog=createDelayDialog(); //开启可选的弹框伪代码，需先于open执行，因为回调不确定是同步还是异步的
 			_this.newRec.open(
 				function() {
-				    console.log("环境准备成功");
 					_this._msg("开始录音...");
 					_this.newRec.start(); //开始录音
 					_this.recConfig.playCode = 1;
@@ -894,16 +892,13 @@ export default {
 				},
 				//打开麦克风授权获得相关资源
 				function(msg, isUserNotAllow) {
-					console.log(msg,isUserNotAllow)
-				    console.log("环境准备失败");
+					console.log("环境准备失败");
+					_this._msg("当前环境不支持录音");
 					//用户拒绝未授权或不支持
 					// dialog&&dialog.Cancel(); //如果开启了弹框，此处需要取消
 					_this.recConfig.playCode = 0;
 					_this.recConfig.imgCode = 0;
 					console.log(msg,isUserNotAllow)
-					console.log(
-						(isUserNotAllow ? "UserNotAllow，" : "") + "无法录音:" + msg
-					);
 					_this.log(
 						(isUserNotAllow ? "UserNotAllow，" : "") + "无法录音:" + msg
 					);

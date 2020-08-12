@@ -4,9 +4,9 @@
       <h1>{{pageLan.title}}</h1>
     </div>
     <div class="login-phone">
-      <h3>手机号</h3>
+      <h3>{{tit}}</h3>
       <div class="input-phone-box">
-        <input v-model="model.input" disabled placeholder="请输入手机号码" />
+        <input v-model="model.input" disabled placeholder="请输入手机号码/邮箱账号" />
       </div>
     </div>
     <div class="email-pwd">
@@ -30,6 +30,7 @@ export default {
         // title: "修改密码",
         // inputType: "手机号"
       },
+      tit:"手机号",
       model: {
         input: ""
       }
@@ -48,6 +49,14 @@ export default {
       });
     });
     console.log(this.model.input);
+    let us = this.getCache("user_info",2).telPhone;
+		var reP = this.Global.reg_phone;
+		var reE = this.Global.reg_Email;
+		if(reE.test(us)){
+			this.tit = "邮箱";
+		}else if(reP.test(us)){
+			this.tit = "手机号";
+		}
   },
 
   methods: {
@@ -59,13 +68,17 @@ export default {
             this.pageLan.headerTile = "重置密码";
             this.pageLan.title = "修改密码";
             break;
+          case "setPass": //邮箱首次注册设置密码
+            this.pageLan.headerTile = "设置密码";
+            this.pageLan.title = "设置密码";
+            break;  
           case "tranPass": //安全密码
             this.pageLan.headerTile = "更改安全密码";
             this.pageLan.title = "更改安全密码";
             break;
           case "phone": //手机号
-            this.pageLan.headerTile = "重置手机";
-            this.pageLan.title = "修改手机号码";
+            this.pageLan.headerTile = "更换账号";
+            this.pageLan.title = "修改账号";
             break;
           case "email": //邮箱
             this.pageLan.headerTile = "重置邮箱";
@@ -85,8 +98,9 @@ export default {
     doNext() {
       var val = this.inputVal;
       var type = this.getParams().type;
-      var reg = /^1[3456789]\d{9}$/;
-      if (!reg.test(val)) return this._msg("手机格式不正确");
+      var regP = /^1[3456789]\d{9}$/;
+      var regE = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+      if (!regP.test(val) && !regE.test(val)) return this._msg("账号格式不正确");
       var obj = {};
       obj.type = type;
       obj.tel = this.model.input;

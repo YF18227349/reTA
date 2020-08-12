@@ -17,7 +17,7 @@
 			<div class="inputGroup-input">
 				<h3 class="phone-loble">账号</h3>
 				<div class="login_phone">
-					<input maxlength="11" type="tel" placeholder="请输入注册手机号" v-model="userInfo.uPhone" />
+					<input type="text" placeholder="请输入注册手机号/邮箱账号" v-model="userInfo.uPhone" />
 					<!-- <img src="http://static.sxtian.com/imgs/main/icon_user.png" alt /> -->
 				</div>
 			</div>
@@ -146,13 +146,21 @@ export default {
 			}, 1000);
 		},
 		do_login() {
-			var re = this.Global.reg_phone;
+			var reP = this.Global.reg_phone;
+			var reE = this.Global.reg_Email;
 			var loginPass = this.userInfo.uPwd;
 			var loginName = this.userInfo.uPhone;
 			var checkboxs = this.checkboxs;
-			if (!this.checkPhone(loginName, re)) {
-				return;
+			if(reE.test(loginName)){
+				if (!this.checkEmail2(loginName, reE)) {
+					return;
+				}
+			}else if(reP.test(loginName)){
+				if (!this.checkPhone2(loginName, reP)) {
+					return;
+				}
 			}
+			
 			if (!this.checkPwd(loginPass)) {
 				return;
 			}
@@ -165,34 +173,36 @@ export default {
 				loginPass
 			};
 			this.__initAction("Member-login", param, (res, s) => {
-				console.log(res)
-				if (s == 1) {
-					this.$dialog.loading.close(); //清除缓存
-					var token = res.data.token;
-					var uid = res.data.uid;
-					var rid = res.data.rid;
-					var telPhone = loginName;
-					var user_info = {
-						token: token,
-						uid: uid,
-						rid: rid,
-						telPhone: telPhone,
-						location: this.Global.config.location
-					};
-					this.Global.config.uid = user_info.uid;
-					this.Global.config.token = user_info.token;
-					this.setCache("user_info", JSON.stringify(user_info));
-					this.setCache("userInfoExt", JSON.stringify(res.data));
-					this._msg(res.info);
-					setTimeout(() => {
-						this.__Sleep(e => {
-							this.__Href("/");
-						});
-					}, 500);
-				} else {
-					this._msg(res.info);
-				}
-			});
+			console.log(res)
+			if (s == 1) {
+				this.$dialog.loading.close(); //清除缓存
+				var token = res.data.token;
+				var uid = res.data.uid;
+				var rid = res.data.rid;
+				var telPhone = loginName;
+				var Husername = res.data.getU.entities[0].username;
+				var user_info = {
+					token: token,
+					uid: uid,
+					rid: rid,
+					telPhone: telPhone,
+					location: this.Global.config.location,
+					Husername
+
+				};
+				this.Global.config.uid = user_info.uid;
+				this.Global.config.token = user_info.token;
+				this.setCache("user_info", JSON.stringify(user_info));
+				this.setCache("userInfoExt", JSON.stringify(res.data));
+				setTimeout(() => {
+					this.__Sleep(e => {
+						this.__Href("/newusercenter");
+					});
+				}, 500);
+			} else {
+				this._msg(res.info);
+			}
+		   });
 		}
 	},
 	watch: {

@@ -8,7 +8,7 @@
             <span class="fm-1 fw-6 fc-dark">当前城市</span>
           </a>
           <span slot="right" class="fm-1 fw-6 fc-gray">{{pageInfo.location_province}}</span>
-          <span slot="right" class="fm-1 fw-6 fc-gray">{{pageInfo.location_city}}</span>
+          <!-- <span slot="right" class="fm-1 fw-6 fc-gray">{{pageInfo.location_city}}</span> -->
         </self-cell-item>
       </a>
     </div>
@@ -48,6 +48,7 @@ export default {
         header_title: "选择城市",
         token: "",
         location_city: "",
+        location_province:"",
         lng: null,
         lat: null
       },
@@ -64,6 +65,7 @@ export default {
     $(".clear_location_city").css("height", `${location_h}px`);
   },
   created() {
+    this.getPageInfo();
     this.selfMainLoadOpend();
     this.$store.commit("setHeaderStyle", {
       txt: this.pageInfo.header_title,
@@ -83,6 +85,11 @@ export default {
       this.__Sleep(e => {
         this.selfMainLoadClosed();
       }, 1000);
+      this.__initAction("Tools-getLatLon", {}, (res, s) => {
+				if (s == 1) {
+          this.pageInfo.location_province = res.data.content.city;
+				}
+			});
     },
     getLocation() {
       // var token = this.getToken();
@@ -100,7 +107,6 @@ export default {
 
       this.__initAction("Tools-getLatLon", {}, (res, s) => {
         if (s == 1) {
-          console.log(res)
           var select_city = {};
           select_city.city_name = res.data.content["city"];
           select_city.city_id = res.data.cityId;
@@ -130,6 +136,7 @@ export default {
               user_info.location.cityId = res.data.cityId;
               user_info.location.address = res.data.address;
               user_info.location.lng = res.data.point["x"];
+              user_info.location.lon = res.data.point["x"];
               user_info.location.lat = res.data.point["y"];
               user_info.location.city = res.data.content["city"];
               user_info.location.province = res.data.content["province"];
@@ -171,6 +178,7 @@ export default {
           console.log(data)
           // select_city.lng = data.lng;
           select_city.lng = data.longitude;
+          select_city.lon = data.longitude;
           // select_city.lat = data.lat;
           select_city.lat = data.latitude;
           info.select_city = {};
@@ -188,7 +196,7 @@ export default {
           location.province = name;
           // location.lat = res.data.lat;
           // location.lon = res.data.lng;
-           location.lat = data.latitude;
+          location.lat = data.latitude;
           location.lon = data.longitude;
           this.setCache("location", JSON.stringify(location));
           var user_info = this.getUserInfo();
@@ -201,6 +209,7 @@ export default {
             user_info.location.cityId = res.data.id;
             user_info.location.address = res.data.parent.name + name;
             user_info.location.lng = res.data.longitude;
+            user_info.location.lon = res.data.longitude;
             user_info.location.lat = res.data.latitude;
             user_info.location.city = res.data.name;
             user_info.location.province = name;

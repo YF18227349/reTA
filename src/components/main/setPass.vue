@@ -102,9 +102,10 @@ export default {
 			that.__initAction(url, params, (res, s) => {
 				if (s == 1) {
 					that._msg(res.info);
+					
 					setTimeout(() => {
 						this.__Sleep(e => {
-							this.__Href("/");
+							this.__Href("/login");
 						});
 					}, 500);
 				} else {

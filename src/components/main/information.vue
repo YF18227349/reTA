@@ -34,9 +34,8 @@
 				</router-link>
 			</div>
 		</self-push-up>
-		<a href="javascript:;" class="ifImg" v-if="pushUpParam.dataList.length<=0">
+		<a href="javascript:;" class="ifImg" v-if="isNuno">
 			<img :src="Img">
-			<!-- <self-no-data title="暂无数据..." size="16"></self-no-data> -->
 		</a>
 	</div>
 </template>
@@ -118,7 +117,8 @@ export default {
 				length: 10,
 				count: null
 			},
-			Img:""
+			Img:"",
+			isNuno:false
 		};
 	},
 	mounted() {
@@ -143,11 +143,30 @@ export default {
 			this.getData.name = this.getParams().name;
 			this.getData.mid = this.getParams().mid;
 			this.getData.type = this.getParams().type;
-			console.log(this.getParams().type)
 			this.$store.commit("setHeaderStyle", {
 				txt: this.getData.name,
 				type: 1
 			});
+
+			let location = this.getCache("location",2);
+			var select_data = this.getCache("select_data", 2);
+			if(select_data) {
+				if(select_data.select_city) {
+					this.pushUpParam.params.cityId = select_data.select_city.city_id;
+					this.pushUpParam.params.lat = select_data.select_city.lat;
+					this.pushUpParam.params.lon = select_data.select_city.lng;
+				}else {
+					this.pushUpParam.params.cityId = location.cityId;
+					this.pushUpParam.params.lat = location.lat;
+					this.pushUpParam.params.lon = location.lon;
+				}
+			}else {
+				this.pushUpParam.params.cityId = location.cityId;
+				this.pushUpParam.params.lat = location.lat;
+				this.pushUpParam.params.lon = location.lon;
+			}
+
+		
 			switch (this.getData.mid) {
 				case "-1":
 					this.pushUpParam.ajaxUrl = "Hotnews-preview";
@@ -185,6 +204,7 @@ export default {
 		},
 		//请求数据
 		getDataList() {
+			console.log(this.pushUpParam.params)
 			this.__initAction(
 				this.pushUpParam.ajaxUrl,
 				this.pushUpParam.params,
@@ -193,71 +213,75 @@ export default {
 						// this._msg(res.info);
 						return false;
 					}else{
-						switch (this.getData.type) {
-							case "1":
-								for (let it of res.data) {
-									console.log(it)
-									var arr = {};
-									arr.title = it.title;
-									arr.name = it.c_user.lastName;
-									arr.logo = it.c_user.portrait;
-									arr.imgs = it.prices;
-									arr.hot = it.view;
-									arr.lng = it.lon;
-									arr.lat = it.lat;
-									arr.distance = it.distance;
-									arr.time = it.create_time;
-									arr.detail = it.infos;
-									arr.id = it.id;
-									arr.salary = it.serviceDatd;
-									this.pushUpParam.dataList.push(arr);
-								}
-								break;
-							case "2":
-								if (!res.data) return;
-								var data = res.data.lists;
-								for (let it of data) {
-									var arr = {};
-									arr.title = it.title;
-									arr.name = it.lastName;
-									arr.logo = it.portrait;
-									arr.imgs = it.images;
-									arr.hot = it.view;
-									arr.lng = it.lon;
-									arr.lat = it.lat;
-									arr.distance = it.distance;
-									arr.time = it.create_time;
-									arr.detail = it.infos;
-									arr.id = it.id;
-									arr.salary = it.price;
-									this.pushUpParam.dataList.push(arr);
-								}
-								break;
-							case "3":
-								for (let it of res.data) {
-									var arr = {};
-									arr.title = it.title;
-									arr.name = it.lastName;
-									arr.logo = it.portrait;
-									arr.addr = it.addressInfo;
-									arr.hot = it.view;
-									arr.lng = it.lon;
-									arr.lat = it.lat;
-									arr.position = "人事经理";
-									arr.distance = it.distance;
-									arr.time = it.create_time;
-									arr.id = it.id;
-									arr.salary = it.prices;
-									arr.education = it.education;
-									arr.experience = it.exp;
-									this.pushUpParam.dataList.push(arr);
-								}
-								break;
-							default:
-								console.log(res);
-								break;
-
+						if(res.data.count == 0) {
+							this.isNuno = true;
+						}else {
+							this.isNuno = false;
+							switch (this.getData.type) {
+								case "1":
+									for (let it of res.data) {
+										var arr = {};
+										arr.title = it.title;
+										arr.name = it.c_user.lastName;
+										arr.logo = it.c_user.portrait;
+										arr.imgs = it.prices;
+										arr.hot = it.view;
+										arr.lng = it.lon;
+										arr.lat = it.lat;
+										arr.distance = it.distance;
+										arr.time = it.create_time;
+										arr.detail = it.infos;
+										arr.id = it.id;
+										arr.salary = it.serviceDatd;
+										this.pushUpParam.dataList.push(arr);
+									}
+									break;
+								case "2":
+									if (!res.data) return;
+									var data = res.data.lists;
+									for (let it of data) {
+										var arr = {};
+										arr.title = it.title;
+										arr.name = it.lastName;
+										arr.logo = it.portrait;
+										arr.imgs = it.images;
+										arr.hot = it.view;
+										arr.lng = it.lon;
+										arr.lat = it.lat;
+										arr.distance = it.distance;
+										arr.time = it.create_time;
+										arr.detail = it.infos;
+										arr.id = it.id;
+										arr.salary = it.price;
+										this.pushUpParam.dataList.push(arr);
+									}
+									break;
+								case "3":
+									for (let it of res.data) {
+										var arr = {};
+										arr.title = it.title;
+										arr.name = it.lastName;
+										arr.logo = it.portrait;
+										arr.addr = it.addressInfo;
+										arr.hot = it.view;
+										arr.lng = it.lon;
+										arr.lat = it.lat;
+										arr.position = "人事经理";
+										arr.distance = it.distance;
+										arr.time = it.create_time;
+										arr.id = it.id;
+										arr.salary = it.prices;
+										arr.education = it.education;
+										arr.experience = it.exp;
+										this.pushUpParam.dataList.push(arr);
+									}
+									break;
+								default:
+									console.log(res);
+									break;
+							}
 						}
+						
 					}
 					this.pushUpParam.param.count = res.count;
 					this.param.count = res.data.counts;

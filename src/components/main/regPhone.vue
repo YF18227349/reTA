@@ -20,10 +20,10 @@
 		</div>
 
 		<div class="login-phone">
-			<h3>手机号码</h3>
+			<h3>手机号码/邮箱</h3>
 			<div class="input-box-regphone">
-				<input v-model="phoneNum" maxlength="11" type="tel" />
-				<span class="position-left">+86</span>
+				<input v-model="phoneNum"  placeholder="请填写手机号码或邮箱账号" type="tel" />
+				<!-- <span class="position-left">+86</span> -->
 				<span @click="phoneNum=''" class="position-right newiconfont icon-chahao"></span>
 			</div>
 		</div>
@@ -120,7 +120,7 @@ export default {
 		getPageData() {
 			return new Promise((resolve, reject) => {
 				try {
-					this.$store.state.header_title = "注册手机号码";
+					this.$store.state.header_title = "注册手机号码/邮箱账号";
 					resolve();
 				} catch (error) {
 					reject(error);
@@ -131,23 +131,43 @@ export default {
 		jumpSendCode(){
 			var val = this.phoneNum;
 			var checkboxs = this.checkboxs;
-			if(val.length != 11){
-				this._msg('请输入正确的手机号码');
-				return
-			};
+			
+			var reP = this.Global.reg_phone;
+			var reE = this.Global.reg_Email;
+			if (!this.checkPhone2(val, reP) && !this.checkEmail2(val, reE)) {
+				return;
+			}
 			if (!this.checkCheckbox(checkboxs)) {
 				return;
 			}
-			var query = {
-				tel: this.phoneNum,
-				type: '手机',
-				pid: this.pid
-			};
-			var path = `/vcode/reg`;
-			this.$router.push({
-				path,
-				query
-			});
+			if(reE.test(val)){
+				console.log('email')
+				var query = {
+					tel: this.phoneNum,
+					type: '邮箱',
+					typeN: 2,
+					pid: this.pid
+				};
+				var path = `/vcode/reg`;
+				this.$router.push({
+					path,
+					query
+				});
+			}else if(reP.test(val)){
+				console.log("手机号")
+				var query = {
+					tel: this.phoneNum,
+					type: '手机',
+					typeN: 1,
+					pid: this.pid
+				};
+				var path = `/vcode/reg`;
+				this.$router.push({
+					path,
+					query
+				});
+			}
+			
 		}
 	},
 
@@ -236,7 +256,6 @@ export default {
 			input {
 				width: 100%;
 				height: 100%;
-				margin-left: 40px;
 				border: none;
 				outline: none;
 			}

@@ -153,19 +153,29 @@ export default {
         console.log(this.code);
         if (this.code.length == 4) {
           console.log("长度满足要求，请求接口中.....");
-		      this._msg("正在进入请稍后...",300);
           var title = this.pageInfo.strType;
           var type = this.pageInfo.type;
-          var url = "Tools-testTelCode";
           var code = this.code;
-          console.log("提交的验证码为:", code);
           if (!code || code.length != 4) return this._msg("请输入正确验证码！");
-          var params = {
-            telPhone: this.pageInfo.tel,
-            code,
-            type: "public"
-            // len: 4
-          };
+          var regP = /^1[3456789]\d{9}$/;
+					var regE = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+					if(regP.test(this.pageInfo.tel)){
+						var url = "Tools-testTelCode";
+            var params = {
+              telPhone: this.pageInfo.tel,
+              code,
+              type: "public"
+              // len: 4
+            };
+					}else if(regE.test(this.pageInfo.tel)){
+						var url = "Tools-testEmailCode";
+						var params = {
+							mail: this.pageInfo.tel,
+							type: "public",
+              code
+						};
+					}
+          
           this.__initAction(url, params, (res, s) => {
             if (s == 1) {
               var code = res.code;
@@ -268,12 +278,27 @@ export default {
       //发送验证码
       return new Promise((resolve, reject) => {
         var that = this;
-        var url = "Tools-setTelCode";
-        var params = {
-          telPhone: that.pageInfo.tel,
-          type: "havelng",
-          len: 4
-        };
+        var regP = /^1[3456789]\d{9}$/;
+        var regE = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if(regP.test(that.pageInfo.tel)){
+          var url = "Tools-setTelCode";
+          var params = {
+            telPhone: that.pageInfo.tel,
+            type: "havelng",
+            len: 4
+          };
+        }else if(regE.test(that.pageInfo.tel)){
+          var url = "Tools-setEmailCode";
+          var params = {
+            mail: that.pageInfo.tel,
+            type: "public",
+            len: 4,
+            pad: 0
+          };
+        }
+
+        
+        
         that.__initAction(url, params, (res, s) => {
           if (s == 1) {
             // this._msg(res.info, 800);

@@ -52,12 +52,22 @@ export default {
 			txt: "安全中心",
 			type: 1
 		});
+		
+		
 	},
 
 	mounted() {
 		var h = document.documentElement.clientHeight;
 		$(".safeCenter .header").css("height", `${h * 0.07}px`);
 		this.selfMainLoadClosed();
+		let us = this.getCache("user_info",2).telPhone;
+		var reP = this.Global.reg_phone;
+		var reE = this.Global.reg_Email;
+		if(reE.test(us)){
+			this.userList[2].title = "更换邮箱";
+		}else if(reP.test(us)){
+			this.userList[2].title = "更换手机号";
+		}
 	},
 	methods: {
 		cancel(){
