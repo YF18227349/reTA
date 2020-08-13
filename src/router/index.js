@@ -252,8 +252,7 @@ const router = new Router({
       component: SetPassWord,
       meta: {
         showHeader: true,
-        showFooter: false,
-        needLogin: true
+        showFooter: false
       }
     },
     {

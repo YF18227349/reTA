@@ -76,11 +76,11 @@ export default {
 							token: data.token,
 							uid: data.uid,
 							telPhone: user_info.telPhone,
-							location: this.Global.config.location
+							location: this.Global.config.location,
 						};
 						this.Global.config.uid = data.uid;
 						this.Global.config.token = data.token;
-						this.setCache("user_info", JSON.stringify(new_user_info));
+						// this.setCache("user_info", JSON.stringify(new_user_info));
 						href = "/main";
 					}
 					this.__Sleep(e => {

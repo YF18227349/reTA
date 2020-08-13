@@ -157,8 +157,8 @@ export default {
           var type = this.pageInfo.type;
           var code = this.code;
           if (!code || code.length != 4) return this._msg("请输入正确验证码！");
-          var regP = /^1[3456789]\d{9}$/;
-					var regE = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+          var regP = /^1\d{10}$/;
+					var regE = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 					if(regP.test(this.pageInfo.tel)){
 						var url = "Tools-testTelCode";
             var params = {

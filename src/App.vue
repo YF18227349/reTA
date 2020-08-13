@@ -281,10 +281,10 @@ export default {
     initIm() {
       //初始化Im
       var _this = this;
-      var info = this.getCache("user_info",2);
-      if (info) {
-        this.userName = info.Husername;
-        this.acsToken = info.token;
+      var uinfo = this.getCache("user_info",2);
+      if (uinfo) {
+        this.userName = uinfo.Husername;
+        this.acsToken = uinfo.token;
 
         // this.$imOption.user = userName; //将登录名存入imoptions
         // this.$imOption.accessToken = acsToken; //将密码存入imoptions

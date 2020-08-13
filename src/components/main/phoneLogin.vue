@@ -114,7 +114,7 @@ export default {
 				var url = "Tools-setTelCode";
 				var params = {
 					telPhone: val,
-					type: 'havelng',
+					type: 'login',
 					len: 4,
 					pid: ''
 				};

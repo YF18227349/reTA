@@ -20,22 +20,23 @@ exports.install = function (Vue, options) {
 		}
 	};
 	//验证手机号码 (x:手机号码,reg正则匹配)
-	Vue.prototype.checkPhone2 = function (x, reg) { //全局函数1
-		var re = reg
+	Vue.prototype.checkPhone2 = function (x, reg, isType = "msg") { //全局函数1
+		var re = reg;
+		var check = false;
 		if (!x) {
-			this.$dialog.toast({
-				mes: "账号不能为空",
-				timeout: 800
-			});
-			return;
+			check = "账号不能为空";
 		} else if (!re.test(x)) {
-			this.$dialog.toast({
-				mes: "账号格式错误",
-				timeout: 800
-			});
-			return;
+			check = "手机格式错误";
 		} else {
-			return true;
+			check = true;
+		}
+		if(isType === "msg" && typeof check !=  "boolean") {
+			this.$dialog.toast({
+				mes: check,
+				timeout: 800
+			})
+		}else {
+			return check;
 		}
 	};
 
@@ -90,20 +91,26 @@ exports.install = function (Vue, options) {
 			return true;
 		}
 	};
-	Vue.prototype.checkEmail2 = function(email, reg){
+	Vue.prototype.checkEmail2 = function(email, reg, isType = "msg"){
 		var re = reg
 		if(!email){
-			this.$dialog.toast({
-				mes:"账号不能为空",
-				timeout:800
-			});
-			return;
-		}else if(!re.test(email)){
+			if(isType === "msg") {
 				this.$dialog.toast({
-					mes:"账号格式错误",
+					mes:"账号不能为空",
 					timeout:800
 				});
-				return;
+			}else {
+				return "账号不能为空";
+			}
+		}else if(!re.test(email)){
+			if(isType === "msg") {
+				this.$dialog.toast({
+					mes:"邮箱格式错误",
+					timeout:800
+				});
+			}else {
+				return "邮箱格式错误";
+			}
 		}else{
 			return true;
 		}

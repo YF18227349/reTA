@@ -93,7 +93,6 @@ export default {
   },
 
   created() {
-    console.log(this.pageInfo)
     this.getPageData()
       .then(data => {
         return new Promise((resolve, reject) => {
@@ -172,7 +171,7 @@ export default {
                 params = {
                   telPhone,
                   code,
-                  type: "reg",
+                  type: "login",
                   len: 4,
                   // pid: this.pageInfo.pid,
                   pid: 0
@@ -183,16 +182,16 @@ export default {
                 params = {
                   telPhone,
                   code,
-                  type: "reg",
+                  type: "login",
                   len: 4,
-                  pid: this.pageInfo.pid
+                  pid: 0
                 };
               }else if (this.pageInfo.device == "邮箱") {
                 var url = "Tools-testEmailCode",
                 params = {
                   mail:this.pageInfo.tel,
                   code,
-                  type: "public",
+                  type: "login",
                 };
               }
             }else if (type == "reg") {
@@ -219,28 +218,28 @@ export default {
               if (s == 1) {
                 
                 // this._msg(res.info);
-                console.log(res,type)
 
                 if (type == "login") {
                   // this._msg('登录成功')
+                  console.log(res,"YUFENG",that.Global.config.location,)
                   //登录
-                  this.$dialog.loading.close(); //清除缓存
+                   this.$dialog.loading.close(); //清除缓存
                   var token = res.data.token;
                   var uid = res.data.id;
                   var rid = res.data.rid;
                   var loginName = res.data.loginName;
-                  var portrait = res.data.portrait;
                   var user_info = {
                     token: token,
                     uid: uid,
                     rid: rid,
                     telPhone: loginName,
                     location: this.Global.config.location,
-                    portrait: portrait,
-                    // Husername:res.data.getU.entities[0].username
+                    Husername:res.data.hxUser.entities[0].username
                   };
                   this.Global.config.uid = res.data.id;
                   this.Global.config.token = user_info.token;
+
+                  console.log(user_info)
                   this.setCache("user_info", JSON.stringify(user_info));
                   setTimeout(() => {
                     this.__Sleep(e => {
@@ -248,23 +247,24 @@ export default {
                     });
                   }, 500);
                 } else if (type == "getpass") {
-                  // this._msg('验证通过')
                   //重置密码
                   setTimeout(() => {
-                    var obj = {
-                      code,
-                      tel: telPhone
-                    };
-                    var path =  "/setPassWord";
-                    this.$router.push({
+                    this.__Sleep(e => {
+                       var obj = {
+                         tel: telPhone,
+                         code,
+                      };
+                      var path =  "/setPassWord";
+                      // var path = `/setPassWord/${this.pageInfo.title}`;
+                      this.$router.push({
                         path: path,
                         query: obj
+                      });
                     });
                   }, 200);
                 } else if (type == "reg") {
                   // this._msg('验证通过')
                   //验证通过
-                  console.log(res)
                   this.$dialog.loading.close(); //清除缓存
                   var token = res.data.token;
                   var uid = res.data.id;
@@ -278,28 +278,27 @@ export default {
                     telPhone: loginName,
                     location: this.Global.config.location,
                     portrait: portrait,
-                    // Husername:res.data.getU.entities[0].username
+                    Husername:res.data.hxUser.entities[0].username
                   };
                   this.Global.config.uid = res.data.id;
                   this.Global.config.token = user_info.token;
 
-                  console.log(user_info)
-                  // this.setCache("user_info", JSON.stringify(user_info));
-                  // setTimeout(() => {
-                  //   this.__Sleep(e => {
-                  //      var obj = {
-                  //       type: "setPass",
-                  //       tel: this.getQuery().tel,
-                  //       // type: this.pageInfo.type
-                  //     };
-                  //     var path = `/safeResetPass/${this.pageInfo.title}`;
-                  //     console.log(path)
-                  //     this.$router.push({
-                  //       path: path,
-                  //       query: obj
-                  //     });
-                  //   });
-                  // }, 200);
+                  this.setCache("user_info", JSON.stringify(user_info));
+                  setTimeout(() => {
+                    this.__Sleep(e => {
+                       var obj = {
+                        type: "setPass",
+                        tel: this.getQuery().tel,
+                        // type: this.pageInfo.type
+                      };
+                      var path = `/safeResetPass/${this.pageInfo.title}`;
+                      console.log(path)
+                      this.$router.push({
+                        path: path,
+                        query: obj
+                      });
+                    });
+                  }, 200);
                 }
               } else {
                 this._msg(res.info);
@@ -501,7 +500,8 @@ export default {
             rid: rid,
             telPhone: telPhone,
             location: this.Global.config.location,
-            portrait: portrait
+            portrait: portrait,
+            Husername:res.data.hxUser.entities[0].username
           };
           this.Global.config.uid = res.data.id;
           this.Global.config.token = user_info.token;
@@ -557,9 +557,10 @@ export default {
             var user_info = {
               token: token,
               uid: uid,
-              // rid: rid,
+              rid: "test",
               telPhone: telPhone,
-              location: this.Global.config.location
+              location: this.Global.config.location,
+              Husername:res.data.hxUser.entities[0].username
             };
             this.Global.config.uid = user_info.uid;
             this.Global.config.token = user_info.token;

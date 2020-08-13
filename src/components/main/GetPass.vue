@@ -51,8 +51,8 @@ export default {
 		doNext() {
 			var val = this.inputVal;
 			var type = "";
-			var regP = /^1[3456789]\d{9}$/;
-			var regE = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+			var regP = /^1\d{10}$/;
+			var regE = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 			if(regE.test(val)){
 				console.log('邮箱')
 				type = "邮箱";

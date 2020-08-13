@@ -215,6 +215,7 @@ export default {
 
 		changeNum(e){
 			// 限制长度
+			console.log(this.loginPass.length)
 			if(this.getQuery().type == 'tranPass' || this.getQuery().type == 'tranPass2'){
 				if(e == 1){
 					if(this.loginPass.length > 6){
