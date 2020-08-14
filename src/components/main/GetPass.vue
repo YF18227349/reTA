@@ -51,15 +51,38 @@ export default {
 		doNext() {
 			var val = this.inputVal;
 			var type = "";
-			var regP = /^1\d{10}$/;
-			var regE = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-			if(regE.test(val)){
+			var reE = /\@/;
+            var reP = this.Global.reg_phone;
+		
+			if(reE.test(val)){
 				console.log('邮箱')
 				type = "邮箱";
-			}else if(regP.test(val)){
+			}else if(reP.test(val)){
 				console.log("手机")
 				type = "手机";
 			}
+
+			var check = false;
+			if (reE.test(val)) {
+				check = "email";
+			} else {
+				check = "phone";
+			}
+			switch (check) {
+				case "phone":
+				check = this.checkPhone2(val, reP, "other");
+				break;
+				case "email":
+				check = this.checkEmail2(val, reE, "other");
+				break;
+			}
+			if (typeof check != "boolean") {
+				this._msg(check);
+				return false;
+			}
+
+
+
 			// if (this.isPageCode) {
 			// 	//手机找回
 			// 	var regP = /^1[3456789]\d{9}$/;

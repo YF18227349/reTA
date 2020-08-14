@@ -150,12 +150,12 @@ export default {
     do_login() {
       var reP = this.Global.reg_phone;
       var reES = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-      var reE = /^([a-zA-Z_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+      var reE = /\@/;///^[\w./]+\@+[\w./]+$/;
       var loginPass = this.userInfo.uPwd;
       var loginName = this.userInfo.uPhone;
       var checkboxs = this.checkboxs;
       var check = false;
-      if (reES.test(loginName)) {//检查有无@
+      if (reE.test(loginName)) {//检查有无@ match("@")=="@" 
         check = "email";
         // console.log("ck", this.checkEmail2(loginName, reE, "other"));
         // check = this.checkEmail2(loginName, reE, "other");
@@ -173,9 +173,9 @@ export default {
           break;
       }
       if (typeof check != "boolean") {
-		console.log("check", check, typeof check,'我吧提交干掉了');
-		
-        return false;
+         console.log("check", check, typeof check,'我把提交干掉了');
+         this._msg(check);
+         return false;
       }
       if (!this.checkPwd(loginPass)) {
         return;

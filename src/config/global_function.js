@@ -22,22 +22,45 @@ exports.install = function (Vue, options) {
 	//验证手机号码 (x:手机号码,reg正则匹配)
 	Vue.prototype.checkPhone2 = function (x, reg, isType = "msg") { //全局函数1
 		var re = reg;
-		var check = false;
-		if (!x) {
-			check = "账号不能为空";
-		} else if (!re.test(x)) {
-			check = "手机格式错误";
-		} else {
-			check = true;
+		// var check = false;
+		// if (!x) {
+		// 	check = "账号不能为空";
+		// } else if (!re.test(x)) {
+		// 	check = "手机格式错误";
+		// } else {
+		// 	check = true;
+		// }
+		// if(isType === "msg" && typeof check !=  "boolean") {
+		// 	this.$dialog.toast({
+		// 		mes: check,
+		// 		timeout: 800
+		// 	})
+		// }else {
+		// 	return check;
+		// }
+
+		if(!x){
+			if(isType === "msg") {
+				this.$dialog.toast({
+					mes:"账号不能为空",
+					timeout:800
+				});
+			}else {
+				return "账号不能为空";
+			}
+		}else if(!re.test(x)){
+			if(isType === "msg") {
+				this.$dialog.toast({
+					mes:"手机格式错误",
+					timeout:800
+				});
+			}else {
+				return "手机格式错误";
+			}
+		}else{
+			return true;
 		}
-		if(isType === "msg" && typeof check !=  "boolean") {
-			this.$dialog.toast({
-				mes: check,
-				timeout: 800
-			})
-		}else {
-			return check;
-		}
+
 	};
 
 	//验证密码 (pwd: 验证的密码)

@@ -83,14 +83,18 @@ export default {
 						// this.setCache("user_info", JSON.stringify(new_user_info));
 						href = "/main";
 					}
+					setTimeout(() => {
+						this.__Sleep(e => {
+							this.__Href(href);
+						});
+					}, 1000);
+				});
+			} else {
+				setTimeout(() => {
 					this.__Sleep(e => {
 						this.__Href(href);
 					});
-				});
-			} else {
-				this.__Sleep(e => {
-					this.__Href(href);
-				});
+				}, 1000);
 			}
 		},
 		codeSesstionSave() {

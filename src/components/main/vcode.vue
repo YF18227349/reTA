@@ -216,14 +216,31 @@ export default {
             var that = this;
             that.__initAction(url, params, (res, s) => {
               if (s == 1) {
+
+                this.$dialog.loading.close(); //清除缓存
+                var token = res.data.token;
+                var uid = res.data.id;
+                var rid = res.data.rid;
+                var loginName = res.data.loginName;
+                var user_info = {
+                  token: token,
+                  uid: uid,
+                  rid: rid,
+                  telPhone: loginName,
+                  location: this.Global.config.location,
+                  Husername:res.data.hxUser.entities[0].username
+                };
+                this.Global.config.uid = res.data.id;
+                this.Global.config.token = user_info.token;
+
+                this.setCache("user_info", JSON.stringify(user_info));
                 
                 // this._msg(res.info);
 
                 if (type == "login") {
                   // this._msg('登录成功')
-                  console.log(res,"YUFENG",that.Global.config.location,)
                   //登录
-                   this.$dialog.loading.close(); //清除缓存
+                  this.$dialog.loading.close(); //清除缓存
                   var token = res.data.token;
                   var uid = res.data.id;
                   var rid = res.data.rid;
@@ -248,6 +265,7 @@ export default {
                   }, 500);
                 } else if (type == "getpass") {
                   //重置密码
+                  console.log("10.37")
                   setTimeout(() => {
                     this.__Sleep(e => {
                        var obj = {

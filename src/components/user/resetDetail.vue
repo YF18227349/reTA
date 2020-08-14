@@ -149,6 +149,10 @@ export default {
 				var login = this.loginPass;
 				var loginName = tel;
 				console.log(login,loginName);
+				if(login.length < 6) {
+					this._msg("长度不够");
+					return false;
+				}
 				console.log(type)
 				switch (type) {
 					case "pass": //密码

@@ -131,17 +131,32 @@ export default {
 		jumpSendCode(){
 			var val = this.phoneNum;
 			var checkboxs = this.checkboxs;
-			
+
 			var reP = this.Global.reg_phone;
-			var reE = this.Global.reg_Email;
-			if (!this.checkPhone2(val, reP) && !this.checkEmail2(val, reE)) {
-				return;
+			var reE = /\@/;///^[\w./]+\@+[\w./]+$/;
+			var check = false;
+			if (reE.test(val)) {//检查有无@ match("@")=="@" 
+				check = "email";
+			} else {
+				check = "phone";
 			}
+			switch (check) {
+				case "phone":
+				check = this.checkPhone2(val, reP, "other");
+				break;
+				case "email":
+				check = this.checkEmail2(val, reE, "other");
+				break;
+			}
+			if (typeof check != "boolean") {
+				this._msg(check);
+				return false;
+			}
+			
 			if (!this.checkCheckbox(checkboxs)) {
 				return;
 			}
 			if(reE.test(val)){
-				console.log('email')
 				var query = {
 					tel: this.phoneNum,
 					type: '邮箱',
@@ -154,7 +169,6 @@ export default {
 					query
 				});
 			}else if(reP.test(val)){
-				console.log("手机号")
 				var query = {
 					tel: this.phoneNum,
 					type: '手机',

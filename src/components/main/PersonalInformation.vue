@@ -32,7 +32,7 @@
 		<!--  -->
 		<div class="login-phone">
 			<h3>用户名</h3>
-			<div class="input-box">
+			<div class="input-box gz">
 				<input placeholder="请输入用户名" type="text" v-model="userInfomation.lastName" />
 				<!-- <span class="position-right">0/10</span> -->
 				<svg
@@ -55,7 +55,7 @@
 		</div>
 		<div class="login-phone">
 			<h3>生日</h3>
-			<div class="input-box">
+			<div class="input-box gz">
 				<yd-datetime :start-year="staryear" :end-year="endyear" type="date" v-model="userInfomation.birthday" slot="right"></yd-datetime>
 				<span class="set_arrow iconfont icon-previewright position-right"></span>
 			</div>
@@ -206,6 +206,10 @@ export default {
 			//
 			border-bottom: 1px solid #c9c9c9;
 			font-size: 0.9rem;
+		}
+		.gz {
+			padding: 0 !important;
+			border-radius: 0 !important;
 		}
 		.position-left {
 			position: absolute;
